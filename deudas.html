@@ -325,6 +325,16 @@ const firebaseConfig = {
 const LOCAL = new URLSearchParams(location.search).has('local') || location.protocol === 'file:';
 const LS_KEY = 'mis-deudas-v1';
 
+// Deudas iniciales: se cargan una sola vez por cuenta (si las borras, no vuelven).
+const SEED_ID = 'seed-2026-10';
+const SEED = [
+  { id: 'seed-txomin', tipo: 'amigo', nombre: 'Préstamo de Txomin', persona: 'Txomin', importe: 2000, fecha: '2026-10-01', abonos: [], notas: '' },
+  { id: 'seed-sergio', tipo: 'amigo', nombre: 'Préstamo de Sergio', persona: 'Sergio', importe: 1500, fecha: '2026-10-01', abonos: [], notas: '' },
+  { id: 'seed-joserra', tipo: 'amigo', nombre: 'Préstamo de Joserra', persona: 'Joserra', importe: 200, fecha: '2026-10-01', abonos: [], notas: '' },
+  { id: 'seed-empresa', tipo: 'empresa', nombre: 'Préstamo de empresa', entidad: '', capital: 1994, recibido: 0, tin: 0,
+    plazo: Math.ceil(1994 / 96), primera: '2026-10-31', cuota: 96, pagadas: 0, extras: [], notas: '96 € al mes hasta terminar' },
+].map(d => ({ ...d, ts: Date.now() }));
+
 const $ = id => document.getElementById(id);
 const TIPOS = {
   credito: { label: 'Crédito',  icon: '🏦' },
@@ -343,7 +353,18 @@ function localStore() {
   const read = () => { try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch { return []; } };
   const write = list => { try { localStorage.setItem(LS_KEY, JSON.stringify(list)); } catch {} cb(list); };
   return {
-    subscribe(fn) { cb = fn; fn(read()); },
+    subscribe(fn) {
+      cb = fn;
+      try {
+        const flag = 'mis-deudas-' + SEED_ID;
+        if (!localStorage.getItem(flag)) {
+          const ids = new Set(read().map(d => d.id));
+          localStorage.setItem(LS_KEY, JSON.stringify([...read(), ...SEED.filter(d => !ids.has(d.id))]));
+          localStorage.setItem(flag, '1');
+        }
+      } catch {}
+      fn(read());
+    },
     async add(o) { write([...read(), { ...o, id: 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) }]); },
     async update(id, patch) { write(read().map(d => d.id === id ? { ...d, ...patch } : d)); },
     async remove(id) { write(read().filter(d => d.id !== id)); },
@@ -362,6 +383,13 @@ async function firebaseStore() {
   const col = () => F.collection(db, `users/${uid}/deudas`);
   $('btn-google').onclick = () => A.signInWithPopup(auth, new A.GoogleAuthProvider()).catch(e => alert('Error al iniciar sesión: ' + e.message));
   $('btn-logout').onclick = () => { if (unsub) unsub(); A.signOut(auth); };
+  async function sembrar() {
+    const flag = F.doc(db, `users/${uid}/config/deudas-seed`);
+    const snap = await F.getDoc(flag);
+    if (snap.exists() && snap.data()[SEED_ID]) return;
+    await Promise.all(SEED.map(({ id, ...d }) => F.setDoc(F.doc(db, `users/${uid}/deudas`, id), d)));
+    await F.setDoc(flag, { [SEED_ID]: true }, { merge: true });
+  }
   return {
     subscribe(fn) {
       A.onAuthStateChanged(auth, user => {
@@ -369,6 +397,7 @@ async function firebaseStore() {
         uid = user.uid;
         showApp(user);
         setSyncing(true);
+        sembrar().catch(() => {});
         unsub = F.onSnapshot(col(), snap => {
           setSyncing(false);
           fn(snap.docs.map(d => ({ id: d.id, ...d.data() })));
