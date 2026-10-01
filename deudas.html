@@ -335,7 +335,7 @@ const SEEDS = [
     { id: 'seed-sergio', tipo: 'amigo', nombre: 'Préstamo de Sergio', persona: 'Sergio', importe: 1500, fecha: '2026-10-01', abonos: [], notas: '' },
     { id: 'seed-joserra', tipo: 'amigo', nombre: 'Préstamo de Joserra', persona: 'Joserra', importe: 200, fecha: '2026-10-01', abonos: [], notas: '' },
     { id: 'seed-empresa', tipo: 'empresa', nombre: 'Santander', entidad: '', capital: 1994, recibido: 0, tin: 0,
-      plazo: Math.ceil(1994 / 96), primera: '2026-10-31', cuota: 96, pagadas: 0, extras: [], notas: '96 € al mes hasta terminar' },
+      plazo: Math.ceil(1994 / 96), primera: '2026-11-01', cuota: 96, pagadas: 0, extras: [], notas: '96 € el día 1 de cada mes hasta terminar' },
   ] },
   { id: 'seed-2026-10b', add: [
     creditoDia1('seed-693-a', 'Crédito 693 € (1)', 693),
@@ -352,6 +352,9 @@ const SEEDS = [
   { id: 'seed-2026-10e', add: [
     { ...creditoDia1('seed-smartcredito', 'Smartcredito', 435, 1), entidad: 'Smartcredito', primera: '2026-10-14', notas: 'Pago único el 14 oct 2026' },
   ] },
+  { id: 'seed-2026-10f', add: [], patch: {
+    'seed-empresa': { primera: '2026-11-01', notas: '96 € el día 1 de cada mes hasta terminar' },
+  } },
 ];
 
 const $ = id => document.getElementById(id);
