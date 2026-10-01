@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Deudas">
+<meta name="theme-color" content="#0a0c12">
+<title>Mis Deudas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c12;--surface:#13151f;--surface2:#1a1d2a;--surface3:#20243a;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --text:#eeeef0;--muted:#7a7f96;--muted2:#545870;
+  --green:#2dd4a0;--green-dim:rgba(45,212,160,0.1);
+  --red:#f06060;--red-dim:rgba(240,96,96,0.1);
+  --blue:#5b9cf6;--blue-dim:rgba(91,156,246,0.1);
+  --amber:#f0b840;--amber-dim:rgba(240,184,64,0.12);
+  --violet:#a78bfa;--violet-dim:rgba(167,139,250,0.12);
+  --font:'Syne',sans-serif;--mono:'DM Mono',monospace;--r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;overscroll-behavior:none}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100%}
+button{font-family:var(--font)}
+
+/* Login */
+#login-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center}
+.login-logo{font-size:52px;margin-bottom:1.5rem}
+.login-title{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-bottom:.5rem}
+.login-sub{font-size:14px;color:var(--muted);margin-bottom:2.5rem;line-height:1.8}
+.btn-google{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:13px 24px;cursor:pointer;font-size:14px;font-weight:500;color:var(--text)}
+.btn-google:hover{background:var(--surface3)}
+.btn-google svg{width:20px;height:20px}
+.login-alt{margin-top:1.25rem;font-size:12px;color:var(--muted)}
+.login-alt a{color:var(--blue)}
+
+/* App shell */
+#app{display:none}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1rem;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:8px}
+.topbar-left span{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.topbar a{color:var(--muted);font-size:12px;text-decoration:none}
+.topbar a:hover{color:var(--text)}
+.user-avatar{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border2);object-fit:cover}
+.chip-local{font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--amber-dim);color:var(--amber)}
+.btn-logout{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.btn-logout:hover{color:var(--red)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+.sync-dot.syncing{animation:pulse .8s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+
+.nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex:1;min-width:70px;padding:12px 6px;border:none;background:transparent;color:var(--muted);font-size:11px;font-weight:500;letter-spacing:.04em;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.nav-btn.active{color:var(--green);border-bottom-color:var(--green)}
+
+.view{display:none;padding:1rem;max-width:640px;margin:0 auto;padding-bottom:5rem}
+.view.active{display:block}
+
+/* Summary */
+.sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.1rem;min-width:0}
+.sum-card.full{grid-column:1/-1}
+.lbl{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.sum-val{font-family:var(--mono);font-size:20px;font-weight:500;overflow-wrap:anywhere}
+.sum-val.big{font-size:28px}
+.sum-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}
+.split{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.split .sum-card{padding:.8rem .9rem;text-align:center}
+.split .sum-val{font-size:15px}
+.mix{display:flex;height:6px;border-radius:4px;overflow:hidden;background:var(--surface2);margin-top:10px;gap:2px}
+.mix div{height:100%}
+
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin:1.5rem 0 .75rem}
+.sec-hd h3{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.sec-hd .tot{font-family:var(--mono);font-size:13px}
+
+/* Payment rows */
+.list{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:.2rem 1rem}
+.prow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.prow:last-child{border-bottom:none}
+.pico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.pbody{flex:1;min-width:0}
+.pname{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pmeta{font-size:11px;color:var(--muted);margin-top:2px}
+.pamt{font-family:var(--mono);font-size:13px;font-weight:500;text-align:right;flex-shrink:0}
+.tag{display:inline-block;font-size:10px;font-weight:500;padding:1px 7px;border-radius:99px;margin-left:6px;vertical-align:1px}
+.tag-red{background:var(--red-dim);color:var(--red)}
+.tag-amber{background:var(--amber-dim);color:var(--amber)}
+.tag-green{background:var(--green-dim);color:var(--green)}
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:2.5rem 0;line-height:2}
+
+/* Type colours */
+.t-credito{--c:var(--blue);--cd:var(--blue-dim)}
+.t-empresa{--c:var(--violet);--cd:var(--violet-dim)}
+.t-amigo{--c:var(--amber);--cd:var(--amber-dim)}
+.pico,.badge{background:var(--cd);color:var(--c)}
+
+/* Filters */
+.stabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:1rem}
+.stabs::-webkit-scrollbar{display:none}
+.stab{padding:6px 14px;border-radius:99px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
+.stab.active{background:var(--surface2);color:var(--text)}
+
+/* Debt cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.1rem;margin-bottom:.75rem}
+.card-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.card-title{font-size:14px;font-weight:500;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.card-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:99px;letter-spacing:.04em}
+.meta{font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.track{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.fill{height:100%;border-radius:4px;background:var(--c)}
+.nums{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:12px;margin-bottom:10px}
+.nums .rem{font-weight:500;color:var(--c)}
+.next{background:var(--surface2);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}
+.next .v{font-family:var(--mono);font-weight:500}
+.actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.btn{flex:1;min-width:90px;padding:8px;border:1px solid var(--border2);border-radius:8px;background:transparent;color:var(--muted);font-size:12px;font-weight:500;cursor:pointer}
+.btn:hover{background:var(--surface2);color:var(--text)}
+.btn.pay{border-color:var(--green);color:var(--green)}
+.btn.pay:hover{background:var(--green-dim)}
+.btn.danger:hover{color:var(--red);border-color:var(--red)}
+.done{text-align:center;font-size:12px;color:var(--green);padding:4px 0}
+
+/* Form */
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem}
+.type-toggle{display:flex;border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:1.25rem}
+.type-toggle button{flex:1;padding:9px 4px;border:none;background:transparent;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted)}
+.type-toggle button.on{background:var(--cd);color:var(--c)}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field input,.field select{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field select option{background:#1a1d2a}
+.field .hint{font-size:11px;color:var(--muted2);margin-top:5px;line-height:1.5}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.preview{background:var(--surface2);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:1rem;line-height:1.8}
+.preview b{color:var(--text);font-family:var(--mono);font-weight:500}
+.btn-sub{width:100%;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;background:var(--green);color:#0a0c12}
+.btn-sub:disabled{opacity:.4}
+.btn-cancel{width:100%;padding:10px;border:none;background:none;color:var(--muted);font-size:13px;cursor:pointer;margin-top:6px}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:200}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:18px 18px 0 0;width:100%;max-width:640px;max-height:88vh;overflow:auto;padding:1.25rem 1rem 2rem}
+@media(min-width:700px){.modal-bg{align-items:center}.modal{border-radius:18px}}
+.modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.modal-hd h2{font-size:16px;font-weight:700}
+.x{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+.tbl-wrap{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+th{font-family:var(--font);font-weight:500;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:right;padding:6px 4px;border-bottom:1px solid var(--border2);position:sticky;top:0;background:var(--surface)}
+td{text-align:right;padding:6px 4px;border-bottom:1px solid var(--border);white-space:nowrap}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+tr.paid td{color:var(--muted2)}
+tr.late td{color:var(--red)}
+tr.nextrow td{color:var(--green)}
+.inline-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1rem 0}
+.inline-form .full{grid-column:1/-1}
+.mini-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;margin-left:8px}
+.mini-del:hover{color:var(--red)}
+
+@media(max-width:380px){.sum-val{font-size:17px}.sum-val.big{font-size:23px}.split .sum-val{font-size:13px}}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-logo">📉</div>
+  <h1 class="login-title">Mis Deudas</h1>
+  <p class="login-sub">Créditos, préstamos de empresa y de amigos.<br>Plazos y cuotas en un solo sitio.</p>
+  <button class="btn-google" id="btn-google">
+    <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    Entrar con Google
+  </button>
+  <p class="login-alt">¿Sin conexión? <a href="?local">Usar en modo local</a> (solo este navegador)</p>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span>Mis Deudas</span>
+      <a href="index.html">· Finanzas</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div id="user-pic"></div>
+      <button class="btn-logout" id="btn-logout">Salir</button>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" data-view="resumen">Resumen</button>
+    <button class="nav-btn" data-view="deudas">Deudas</button>
+    <button class="nav-btn" data-view="calendario">Calendario</button>
+    <button class="nav-btn" data-view="anadir">+ Añadir</button>
+  </nav>
+
+  <!-- RESUMEN -->
+  <div id="view-resumen" class="view active">
+    <div class="sum-grid">
+      <div class="sum-card full">
+        <div class="lbl">Deuda pendiente total</div>
+        <div class="sum-val big red" id="s-total">€0</div>
+        <div class="sum-sub" id="s-total-sub">—</div>
+        <div class="mix" id="s-mix"></div>
+      </div>
+      <div class="sum-card">
+        <div class="lbl" id="s-mes-lbl">Este mes</div>
+        <div class="sum-val" id="s-mes">€0</div>
+        <div class="sum-sub" id="s-mes-sub">—</div>
+      </div>
+      <div class="sum-card">
+        <div class="lbl">Vencido sin pagar</div>
+        <div class="sum-val" id="s-venc">€0</div>
+        <div class="sum-sub" id="s-venc-sub">—</div>
+      </div>
+    </div>
+    <div class="split">
+      <div class="sum-card t-credito"><div class="lbl">🏦 Créditos</div><div class="sum-val" style="color:var(--c)" id="s-credito">€0</div></div>
+      <div class="sum-card t-empresa"><div class="lbl">🏢 Empresa</div><div class="sum-val" style="color:var(--c)" id="s-empresa">€0</div></div>
+      <div class="sum-card t-amigo"><div class="lbl">🤝 Amigos</div><div class="sum-val" style="color:var(--c)" id="s-amigo">€0</div></div>
+    </div>
+    <div class="sec-hd"><h3>Próximos 30 días</h3><span class="tot" id="s-30-tot"></span></div>
+    <div id="s-30"></div>
+  </div>
+
+  <!-- DEUDAS -->
+  <div id="view-deudas" class="view">
+    <div class="stabs" id="deuda-tabs">
+      <button class="stab active" data-f="activas">Activas</button>
+      <button class="stab" data-f="credito">🏦 Créditos</button>
+      <button class="stab" data-f="empresa">🏢 Empresa</button>
+      <button class="stab" data-f="amigo">🤝 Amigos</button>
+      <button class="stab" data-f="saldadas">✓ Saldadas</button>
+    </div>
+    <div id="deuda-list"></div>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div id="view-calendario" class="view">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.7">Todos los pagos pendientes, mes a mes. Los préstamos de amigos sin fecha acordada no aparecen aquí.</p>
+    <div id="cal"></div>
+  </div>
+
+  <!-- AÑADIR / EDITAR -->
+  <div id="view-anadir" class="view">
+    <div class="form-card">
+      <div class="type-toggle" id="type-toggle">
+        <button class="t-credito on" data-t="credito">🏦 Crédito</button>
+        <button class="t-empresa" data-t="empresa">🏢 Empresa</button>
+        <button class="t-amigo" data-t="amigo">🤝 Amigo</button>
+      </div>
+
+      <div class="field"><label>Nombre</label><input id="f-nombre" type="text" placeholder="Ej: Préstamo coche"></div>
+
+      <!-- Crédito / empresa -->
+      <div id="g-banco">
+        <div class="field"><label id="f-entidad-lbl">Entidad</label><input id="f-entidad" type="text" placeholder="Ej: Santander"></div>
+        <div class="row2">
+          <div class="field"><label>Capital prestado (€)</label><input id="f-capital" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00"></div>
+          <div class="field"><label>Interés TIN anual (%)</label><input id="f-tin" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Plazo (meses)</label><input id="f-plazo" type="number" inputmode="numeric" min="1" step="1" placeholder="Ej: 48"></div>
+          <div class="field"><label>Primera cuota</label><input id="f-primera" type="date"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Cuota mensual (€)</label><input id="f-cuota" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Auto"><div class="hint">Vacío = se calcula. Pon la del banco si la sabes.</div></div>
+          <div class="field"><label>Cuotas ya pagadas</label><input id="f-pagadas" type="number" inputmode="numeric" min="0" step="1" placeholder="0"><div class="hint" id="f-pagadas-hint"></div></div>
+        </div>
+        <div class="preview" id="f-preview">Rellena capital, plazo y primera cuota para ver el cálculo.</div>
+      </div>
+
+      <!-- Amigo -->
+      <div id="g-amigo" style="display:none">
+        <div class="field"><label>Persona</label><input id="f-persona" type="text" placeholder="Ej: Iker"></div>
+        <div class="row2">
+          <div class="field"><label>Me prestó (€)</label><input id="f-importe" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00"></div>
+          <div class="field"><label>Fecha del préstamo</label><input id="f-fecha" type="date"></div>
+        </div>
+        <div class="field" id="f-devuelto-field"><label>Ya devuelto (€)</label><input id="f-devuelto" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00"><div class="hint">Se guarda como primer abono.</div></div>
+        <div class="field"><label>¿Cómo se devuelve?</label>
+          <select id="f-modo">
+            <option value="libre">Cuando pueda (sin fecha)</option>
+            <option value="fecha">Todo antes de una fecha</option>
+            <option value="mensual">Cantidad fija cada mes</option>
+          </select>
+        </div>
+        <div class="field" id="f-limite-field" style="display:none"><label>Fecha límite</label><input id="f-limite" type="date"></div>
+        <div class="row2" id="f-mensual-field" style="display:none">
+          <div class="field"><label>Cuota acordada (€)</label><input id="f-acordada" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00"></div>
+          <div class="field"><label>Primer pago</label><input id="f-primer-pago" type="date"></div>
+        </div>
+      </div>
+
+      <div class="field"><label>Notas — opcional</label><input id="f-notas" type="text" placeholder="Condiciones, comisiones..."></div>
+      <button class="btn-sub" id="btn-save">Añadir deuda</button>
+      <button class="btn-cancel" id="btn-cancel" style="display:none">Cancelar edición</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-bg"><div class="modal" id="modal"></div></div>
+
+<script type="module">
+// Mismo proyecto Firebase que index.html. Los datos van a users/{uid}/deudas.
+const firebaseConfig = {
+  apiKey:            "AIzaSyDblnyBhQ_31txCSSjVl-OT6Ais42ZvJ8A",
+  authDomain:        "mis-finanzas-cabaa.firebaseapp.com",
+  projectId:         "mis-finanzas-cabaa",
+  storageBucket:     "mis-finanzas-cabaa.firebasestorage.app",
+  messagingSenderId: "773520664259",
+  appId:             "1:773520664259:web:d2b82df81c54ad23f62476",
+  measurementId:     "G-L8KRY9F6PH"
+};
+
+// Modo local: ?local en la URL o abriendo el archivo directamente (file://).
+const LOCAL = new URLSearchParams(location.search).has('local') || location.protocol === 'file:';
+const LS_KEY = 'mis-deudas-v1';
+
+const $ = id => document.getElementById(id);
+const TIPOS = {
+  credito: { label: 'Crédito',  icon: '🏦' },
+  empresa: { label: 'Empresa',  icon: '🏢' },
+  amigo:   { label: 'Amigo',    icon: '🤝' },
+};
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+let deudas = [];
+let filtro = 'activas', tipoForm = 'credito', editingId = null;
+let store = null;
+
+// ── Almacenamiento ──
+function localStore() {
+  let cb = () => {};
+  const read = () => { try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch { return []; } };
+  const write = list => { try { localStorage.setItem(LS_KEY, JSON.stringify(list)); } catch {} cb(list); };
+  return {
+    subscribe(fn) { cb = fn; fn(read()); },
+    async add(o) { write([...read(), { ...o, id: 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) }]); },
+    async update(id, patch) { write(read().map(d => d.id === id ? { ...d, ...patch } : d)); },
+    async remove(id) { write(read().filter(d => d.id !== id)); },
+  };
+}
+
+async function firebaseStore() {
+  const [{ initializeApp }, A, F] = await Promise.all([
+    import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js'),
+  ]);
+  const app = initializeApp(firebaseConfig);
+  const auth = A.getAuth(app), db = F.getFirestore(app);
+  let uid = null, unsub = null;
+  const col = () => F.collection(db, `users/${uid}/deudas`);
+  $('btn-google').onclick = () => A.signInWithPopup(auth, new A.GoogleAuthProvider()).catch(e => alert('Error al iniciar sesión: ' + e.message));
+  $('btn-logout').onclick = () => { if (unsub) unsub(); A.signOut(auth); };
+  return {
+    subscribe(fn) {
+      A.onAuthStateChanged(auth, user => {
+        if (!user) { uid = null; showLogin(); return; }
+        uid = user.uid;
+        showApp(user);
+        setSyncing(true);
+        unsub = F.onSnapshot(col(), snap => {
+          setSyncing(false);
+          fn(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        }, e => { setSyncing(false); alert('Error leyendo datos: ' + e.message); });
+      });
+    },
+    add: o => F.addDoc(col(), o),
+    update: (id, patch) => F.updateDoc(F.doc(db, `users/${uid}/deudas`, id), patch),
+    remove: id => F.deleteDoc(F.doc(db, `users/${uid}/deudas`, id)),
+  };
+}
+
+async function save(fn) {
+  setSyncing(true);
+  try { await fn(); } catch (e) { alert('Error: ' + e.message); } finally { setSyncing(false); }
+}
+
+function showLogin() { $('login-screen').style.display = 'flex'; $('app').style.display = 'none'; }
+function showApp(user) {
+  $('login-screen').style.display = 'none';
+  $('app').style.display = 'block';
+  if (!user) { $('user-pic').innerHTML = '<span class="chip-local">Modo local</span>'; $('btn-logout').style.display = 'none'; return; }
+  $('user-pic').innerHTML = user.photoURL ? `<img class="user-avatar" src="${esc(user.photoURL)}" alt="">` : '';
+}
+function setSyncing(v) { $('sync-dot').classList.toggle('syncing', v); }
+
+// ── Helpers ──
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (n, d = 2) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: d, maximumFractionDigits: d }).format(n || 0);
+const r2 = n => Math.round(n * 100) / 100;
+const num = id => { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; };
+const pad = n => String(n).padStart(2, '0');
+const isoOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const today = () => isoOf(new Date());
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const fmtDate = s => { const d = parse(s); return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3).toLowerCase()} ${d.getFullYear()}`; };
+const monthKey = s => s.slice(0, 7);
+const monthLabel = k => { const [y, m] = k.split('-').map(Number); return `${MONTHS[m - 1]} ${y}`; };
+const daysUntil = s => Math.round((parse(s) - parse(today())) / 864e5);
+
+// Suma k meses a una fecha manteniendo el día (o el último día del mes si no existe).
+function addMonths(s, k) {
+  const d = parse(s);
+  const y = d.getFullYear(), m = d.getMonth() + k;
+  const last = new Date(y, m + 1, 0).getDate();
+  return isoOf(new Date(y, m, Math.min(d.getDate(), last)));
+}
+
+// ── Crédito / empresa: cuadro de amortización (sistema francés) ──
+function cuotaFrancesa(capital, tin, n) {
+  const i = tin / 100 / 12;
+  if (!n) return 0;
+  return i ? capital * i / (1 - Math.pow(1 + i, -n)) : capital / n;
+}
+
+function cuadro(d) {
+  const i = (d.tin || 0) / 100 / 12;
+  const cuota = d.cuota > 0 ? d.cuota : cuotaFrancesa(d.capital, d.tin || 0, d.plazo);
+  const rows = [];
+  let saldo = d.capital;
+  for (let k = 0; k < d.plazo && saldo > 0.005; k++) {
+    const interes = r2(saldo * i);
+    let amort = r2(cuota - interes);
+    if (k === d.plazo - 1 || amort >= saldo) amort = r2(saldo);
+    saldo = r2(saldo - amort);
+    rows.push({ n: k + 1, fecha: addMonths(d.primera, k), cuota: r2(amort + interes), interes, amort, saldo });
+  }
+  return rows;
+}
+
+// ── Amigo: lo devuelto y el plan acordado ──
+const devuelto = d => r2((d.abonos || []).reduce((a, x) => a + x.importe, 0));
+
+function planAmigo(d) {
+  const pend = r2(d.importe - devuelto(d));
+  if (pend <= 0) return [];
+  if (d.modo === 'fecha' && d.limite) return [{ fecha: d.limite, importe: pend }];
+  if (d.modo === 'mensual' && d.acordada > 0 && d.primerPago) {
+    // El plazo k vence cuando lo acumulado acordado (k+1)·cuota supera lo devuelto.
+    const dev = devuelto(d), out = [];
+    let k = Math.floor((dev + 0.005) / d.acordada), rest = pend;
+    while (rest > 0.005 && out.length < 240) {
+      const imp = r2(Math.min(d.acordada * (k + 1) - dev, rest, d.acordada));
+      out.push({ fecha: addMonths(d.primerPago, k), importe: imp });
+      rest = r2(rest - imp); k++;
+    }
+    return out;
+  }
+  return [];
+}
+
+// ── Estado derivado de cada deuda ──
+function estado(d) {
+  if (d.tipo === 'amigo') {
+    const dev = devuelto(d), pend = r2(Math.max(d.importe - dev, 0));
+    return { total: d.importe, pagado: dev, pendiente: pend, pct: d.importe ? dev / d.importe : 1, plan: planAmigo(d), saldada: pend <= 0 };
+  }
+  const rows = cuadro(d);
+  const pagadas = Math.min(d.pagadas || 0, rows.length);
+  const pend = rows.slice(pagadas);
+  const pendienteCapital = pagadas ? rows[pagadas - 1].saldo : d.capital;
+  return {
+    rows, pagadas,
+    total: d.capital,
+    pagado: r2(d.capital - pendienteCapital),
+    pendiente: pend.length ? pendienteCapital : 0,
+    porPagar: r2(pend.reduce((a, r) => a + r.cuota, 0)),
+    intereses: r2(rows.reduce((a, r) => a + r.interes, 0)),
+    pct: rows.length ? pagadas / rows.length : 1,
+    plan: pend.map(r => ({ fecha: r.fecha, importe: r.cuota, n: r.n })),
+    saldada: !pend.length,
+  };
+}
+
+// Todos los pagos futuros/pendientes de todas las deudas.
+function todosLosPagos() {
+  const out = [];
+  for (const d of deudas) {
+    for (const p of estado(d).plan) out.push({ ...p, d });
+  }
+  return out.sort((a, b) => a.fecha.localeCompare(b.fecha));
+}
+
+// ── Render ──
+function payRow(p, extra = '') {
+  const t = today(), dias = daysUntil(p.fecha);
+  let tag = '';
+  if (p.fecha < t) tag = '<span class="tag tag-red">Vencida</span>';
+  else if (dias === 0) tag = '<span class="tag tag-amber">Hoy</span>';
+  else if (dias <= 5) tag = `<span class="tag tag-amber">En ${dias}d</span>`;
+  const quien = p.d.tipo === 'amigo' ? p.d.persona : p.d.entidad;
+  const nTxt = p.n ? ` · cuota ${p.n}/${p.d.plazo}` : '';
+  return `<div class="prow t-${p.d.tipo}">
+    <div class="pico">${TIPOS[p.d.tipo].icon}</div>
+    <div class="pbody">
+      <div class="pname">${esc(p.d.nombre)}${tag}</div>
+      <div class="pmeta">${fmtDate(p.fecha)}${quien ? ' · ' + esc(quien) : ''}${nTxt}${extra}</div>
+    </div>
+    <div class="pamt ${p.fecha < t ? 'red' : ''}">${fmt(p.importe)}</div>
+  </div>`;
+}
+
+function renderResumen() {
+  const est = deudas.map(d => ({ d, e: estado(d) }));
+  const porTipo = { credito: 0, empresa: 0, amigo: 0 };
+  est.forEach(({ d, e }) => porTipo[d.tipo] += e.pendiente);
+  const total = porTipo.credito + porTipo.empresa + porTipo.amigo;
+  const activas = est.filter(x => !x.e.saldada).length;
+  $('s-total').textContent = fmt(total);
+  $('s-total-sub').textContent = activas ? `${activas} deuda${activas > 1 ? 's' : ''} activa${activas > 1 ? 's' : ''}` : 'Sin deudas activas 🎉';
+  $('s-mix').innerHTML = total ? ['credito', 'empresa', 'amigo'].map(t =>
+    porTipo[t] ? `<div class="t-${t}" style="width:${porTipo[t] / total * 100}%;background:var(--c)" title="${TIPOS[t].label}: ${fmt(porTipo[t])}"></div>` : '').join('') : '';
+  for (const t in porTipo) $('s-' + t).textContent = fmt(porTipo[t], 0);
+
+  const t = today(), mk = monthKey(t), pagos = todosLosPagos();
+  const mes = pagos.filter(p => monthKey(p.fecha) === mk);
+  const venc = pagos.filter(p => p.fecha < t);
+  $('s-mes-lbl').textContent = MONTHS[new Date().getMonth()];
+  $('s-mes').textContent = fmt(mes.reduce((a, p) => a + p.importe, 0));
+  $('s-mes-sub').textContent = mes.length ? `${mes.length} pago${mes.length > 1 ? 's' : ''} pendiente${mes.length > 1 ? 's' : ''}` : 'Nada pendiente';
+  const vt = venc.reduce((a, p) => a + p.importe, 0);
+  $('s-venc').textContent = fmt(vt);
+  $('s-venc').className = 'sum-val ' + (vt ? 'red' : 'green');
+  $('s-venc-sub').textContent = venc.length ? `${venc.length} pago${venc.length > 1 ? 's' : ''} atrasado${venc.length > 1 ? 's' : ''}` : 'Todo al día';
+
+  const lim = isoOf(new Date(Date.now() + 30 * 864e5));
+  const prox = pagos.filter(p => p.fecha <= lim);
+  $('s-30-tot').textContent = prox.length ? fmt(prox.reduce((a, p) => a + p.importe, 0)) : '';
+  $('s-30').innerHTML = prox.length
+    ? `<div class="list">${prox.map(p => payRow(p)).join('')}</div>`
+    : '<div class="empty">No hay pagos en los próximos 30 días.</div>';
+}
+
+function cardBanco(d, e) {
+  const sig = e.plan[0];
+  const atrasadas = e.plan.filter(p => p.fecha < today()).length;
+  return `<div class="card t-${d.tipo}">
+    <div class="card-hd">
+      <div>
+        <div class="card-title">${TIPOS[d.tipo].icon} ${esc(d.nombre)} <span class="badge">${TIPOS[d.tipo].label}</span>
+          ${atrasadas ? `<span class="tag tag-red">${atrasadas} vencida${atrasadas > 1 ? 's' : ''}</span>` : ''}</div>
+        ${d.entidad ? `<div class="card-sub">${esc(d.entidad)}</div>` : ''}
+      </div>
+    </div>
+    <div class="meta">
+      <span>💶 ${fmt(e.rows[0]?.cuota || 0)}/mes</span>
+      <span>📈 TIN ${(d.tin || 0).toLocaleString('es-ES')}%</span>
+      <span>🏁 Fin: ${e.rows.length ? fmtDate(e.rows[e.rows.length - 1].fecha) : '—'}</span>
+      ${d.notas ? `<span>📝 ${esc(d.notas)}</span>` : ''}
+    </div>
+    <div class="track"><div class="fill" style="width:${e.pct * 100}%"></div></div>
+    <div class="nums"><span style="color:var(--muted)">Cuota ${e.pagadas} de ${e.rows.length}</span>
+      <span class="rem">${e.saldada ? '✓ Saldado' : 'Capital pendiente ' + fmt(e.pendiente)}</span></div>
+    ${sig ? `<div class="next"><span style="color:var(--muted)">Próxima: ${fmtDate(sig.fecha)}</span><span class="v">${fmt(sig.importe)}</span></div>` : ''}
+    <div class="actions">
+      ${sig ? `<button class="btn pay" data-act="pagar" data-id="${d.id}">✓ Pagar cuota ${sig.n}</button>` : ''}
+      <button class="btn" data-act="ver" data-id="${d.id}">Cuadro</button>
+      <button class="btn" data-act="editar" data-id="${d.id}">Editar</button>
+    </div>
+  </div>`;
+}
+
+function cardAmigo(d, e) {
+  const sig = e.plan[0];
+  const modoTxt = d.modo === 'fecha' && d.limite ? `⏳ Antes del ${fmtDate(d.limite)}`
+    : d.modo === 'mensual' && d.acordada ? `💶 ${fmt(d.acordada)}/mes`
+    : '🕊 Sin fecha, cuando pueda';
+  return `<div class="card t-amigo">
+    <div class="card-hd">
+      <div>
+        <div class="card-title">🤝 ${esc(d.nombre)} <span class="badge">Amigo</span>
+          ${sig && sig.fecha < today() ? '<span class="tag tag-red">Atrasado</span>' : ''}</div>
+        <div class="card-sub">${esc(d.persona || '')}${d.fecha ? ' · desde ' + fmtDate(d.fecha) : ''}</div>
+      </div>
+    </div>
+    <div class="meta"><span>${modoTxt}</span><span>🚫 Sin intereses</span>${d.notas ? `<span>📝 ${esc(d.notas)}</span>` : ''}</div>
+    <div class="track"><div class="fill" style="width:${Math.min(e.pct, 1) * 100}%"></div></div>
+    <div class="nums"><span style="color:var(--muted)">Devuelto ${fmt(e.pagado)} de ${fmt(e.total)}</span>
+      <span class="rem">${e.saldada ? '✓ Saldado' : 'Debo ' + fmt(e.pendiente)}</span></div>
+    ${sig ? `<div class="next"><span style="color:var(--muted)">Próximo: ${fmtDate(sig.fecha)}</span><span class="v">${fmt(sig.importe)}</span></div>` : ''}
+    <div class="actions">
+      ${!e.saldada ? `<button class="btn pay" data-act="abono" data-id="${d.id}">+ Devolver</button>` : ''}
+      <button class="btn" data-act="ver" data-id="${d.id}">Historial</button>
+      <button class="btn" data-act="editar" data-id="${d.id}">Editar</button>
+    </div>
+  </div>`;
+}
+
+function renderDeudas() {
+  const list = deudas.map(d => ({ d, e: estado(d) })).filter(({ d, e }) =>
+    filtro === 'activas' ? !e.saldada : filtro === 'saldadas' ? e.saldada : d.tipo === filtro && !e.saldada);
+  list.sort((a, b) => (a.e.plan[0]?.fecha || '9999').localeCompare(b.e.plan[0]?.fecha || '9999'));
+  $('deuda-list').innerHTML = list.length
+    ? list.map(({ d, e }) => d.tipo === 'amigo' ? cardAmigo(d, e) : cardBanco(d, e)).join('')
+    : `<div class="empty">${filtro === 'saldadas' ? 'Todavía no has saldado ninguna deuda.' : 'Nada por aquí.<br>Añade una deuda en «+ Añadir».'}</div>`;
+}
+
+function renderCalendario() {
+  const pagos = todosLosPagos(), t = today();
+  const venc = pagos.filter(p => p.fecha < t);
+  const fut = pagos.filter(p => p.fecha >= t);
+  const grupos = new Map();
+  fut.forEach(p => { const k = monthKey(p.fecha); if (!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(p); });
+  const bloque = (titulo, ps, cls = '') => `<div class="sec-hd"><h3 class="${cls}">${titulo}</h3><span class="tot ${cls}">${fmt(ps.reduce((a, p) => a + p.importe, 0))}</span></div>
+    <div class="list">${ps.map(p => payRow(p)).join('')}</div>`;
+  let html = venc.length ? bloque('⚠️ Vencido sin pagar', venc, 'red') : '';
+  for (const [k, ps] of grupos) html += bloque(monthLabel(k), ps);
+  $('cal').innerHTML = html || '<div class="empty">No hay pagos programados.</div>';
+}
+
+function render() { renderResumen(); renderDeudas(); renderCalendario(); }
+
+// ── Modal: cuadro de amortización / historial de abonos ──
+function openModal(id, focusAbono = false) {
+  const d = deudas.find(x => x.id === id);
+  if (!d) return closeModal();
+  const e = estado(d);
+  let body = '';
+  if (d.tipo === 'amigo') {
+    const abonos = [...(d.abonos || [])].map((a, i) => ({ ...a, i })).sort((a, b) => b.fecha.localeCompare(a.fecha));
+    body = `
+      <div class="sum-grid">
+        <div class="sum-card"><div class="lbl">Me prestó</div><div class="sum-val">${fmt(e.total)}</div></div>
+        <div class="sum-card"><div class="lbl">Me queda</div><div class="sum-val amber">${fmt(e.pendiente)}</div></div>
+      </div>
+      ${!e.saldada ? `<div class="inline-form">
+        <div class="field"><label>Importe (€)</label><input id="a-imp" type="number" inputmode="decimal" min="0" step="0.01" placeholder="${(e.plan[0]?.importe || e.pendiente).toFixed(2)}"></div>
+        <div class="field"><label>Fecha</label><input id="a-fecha" type="date" value="${today()}"></div>
+        <div class="field full"><label>Nota — opcional</label><input id="a-nota" type="text" placeholder="Bizum, efectivo..."></div>
+        <button class="btn-sub full" data-act="guardar-abono" data-id="${d.id}">Registrar devolución</button>
+      </div>` : '<div class="done" style="margin-bottom:1rem">✓ Completamente devuelto</div>'}
+      <div class="sec-hd"><h3>Devoluciones</h3></div>
+      ${abonos.length ? `<div class="list">${abonos.map(a => `<div class="prow"><div class="pbody"><div class="pname">${fmtDate(a.fecha)}</div>${a.nota ? `<div class="pmeta">${esc(a.nota)}</div>` : ''}</div>
+        <div class="pamt green">${fmt(a.importe)}</div><button class="mini-del" title="Borrar" data-act="borrar-abono" data-id="${d.id}" data-i="${a.i}">×</button></div>`).join('')}</div>`
+        : '<div class="empty">Aún no has devuelto nada.</div>'}
+      ${e.plan.length > 1 ? `<div class="sec-hd"><h3>Plan pendiente</h3></div><div class="list">${e.plan.map(p => payRow({ ...p, d })).join('')}</div>` : ''}`;
+  } else {
+    const t = today();
+    body = `
+      <div class="sum-grid">
+        <div class="sum-card"><div class="lbl">Capital pendiente</div><div class="sum-val red">${fmt(e.pendiente)}</div></div>
+        <div class="sum-card"><div class="lbl">Total por pagar</div><div class="sum-val">${fmt(e.porPagar)}</div><div class="sum-sub">Intereses totales: ${fmt(e.intereses)}</div></div>
+      </div>
+      <div class="actions" style="margin-bottom:1rem">
+        ${!e.saldada ? `<button class="btn pay" data-act="pagar" data-id="${d.id}">✓ Pagar cuota ${e.pagadas + 1}</button>` : ''}
+        ${e.pagadas ? `<button class="btn" data-act="deshacer" data-id="${d.id}">↶ Deshacer cuota ${e.pagadas}</button>` : ''}
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>#</th><th>Fecha</th><th>Cuota</th><th>Interés</th><th>Amort.</th><th>Pendiente</th></tr></thead>
+        <tbody>${e.rows.map(r => {
+          const cls = r.n <= e.pagadas ? 'paid' : r.fecha < t ? 'late' : r.n === e.pagadas + 1 ? 'nextrow' : '';
+          return `<tr class="${cls}"><td>${r.n <= e.pagadas ? '✓' : r.n}</td><td>${fmtDate(r.fecha)}</td><td>${fmt(r.cuota)}</td><td>${fmt(r.interes)}</td><td>${fmt(r.amort)}</td><td>${fmt(r.saldo)}</td></tr>`;
+        }).join('')}</tbody>
+      </table></div>`;
+  }
+  $('modal').innerHTML = `<div class="modal-hd t-${d.tipo}"><h2>${TIPOS[d.tipo].icon} ${esc(d.nombre)}</h2><button class="x" data-act="cerrar">×</button></div>
+    ${body}
+    <div class="actions" style="margin-top:1.25rem"><button class="btn danger" data-act="borrar" data-id="${d.id}">Eliminar deuda</button></div>`;
+  $('modal').dataset.id = id;
+  $('modal-bg').classList.add('open');
+  if (focusAbono) setTimeout(() => $('a-imp')?.focus(), 50);
+}
+function closeModal() { $('modal-bg').classList.remove('open'); delete $('modal').dataset.id; }
+
+// ── Acciones ──
+async function accion(act, id, el) {
+  const d = deudas.find(x => x.id === id);
+  switch (act) {
+    case 'cerrar': return closeModal();
+    case 'ver': return openModal(id);
+    case 'abono': return openModal(id, true);
+    case 'editar': closeModal(); return startEdit(d);
+    case 'pagar': {
+      const e = estado(d);
+      if (e.saldada) return;
+      return save(() => store.update(id, { pagadas: e.pagadas + 1 }));
+    }
+    case 'deshacer':
+      return save(() => store.update(id, { pagadas: Math.max(estado(d).pagadas - 1, 0) }));
+    case 'guardar-abono': {
+      const ph = parseFloat($('a-imp').placeholder);
+      const imp = $('a-imp').value === '' ? ph : num('a-imp');
+      const fecha = $('a-fecha').value;
+      if (!(imp > 0) || !fecha) return alert('Indica importe y fecha');
+      return save(() => store.update(id, { abonos: [...(d.abonos || []), { importe: r2(imp), fecha, nota: $('a-nota').value.trim() }] }));
+    }
+    case 'borrar-abono': {
+      if (!confirm('¿Borrar esta devolución?')) return;
+      const i = +el.dataset.i;
+      return save(() => store.update(id, { abonos: (d.abonos || []).filter((_, k) => k !== i) }));
+    }
+    case 'borrar':
+      if (!confirm(`¿Eliminar «${d.nombre}»? No se puede deshacer.`)) return;
+      closeModal();
+      return save(() => store.remove(id));
+  }
+}
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-act]');
+  if (el) return accion(el.dataset.act, el.dataset.id, el);
+  if (ev.target === $('modal-bg')) closeModal();
+});
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') closeModal(); });
+
+// ── Navegación ──
+function showView(v) {
+  document.querySelectorAll('.view').forEach(x => x.classList.toggle('active', x.id === 'view-' + v));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('.nav-btn').forEach(b => b.onclick = () => { if (b.dataset.view === 'anadir' && editingId) resetForm(); showView(b.dataset.view); });
+document.querySelectorAll('#deuda-tabs .stab').forEach(b => b.onclick = () => {
+  filtro = b.dataset.f;
+  document.querySelectorAll('#deuda-tabs .stab').forEach(x => x.classList.toggle('active', x === b));
+  renderDeudas();
+});
+
+// ── Formulario ──
+function setTipo(t) {
+  tipoForm = t;
+  document.querySelectorAll('#type-toggle button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  $('g-banco').style.display = t === 'amigo' ? 'none' : '';
+  $('g-amigo').style.display = t === 'amigo' ? '' : 'none';
+  $('f-entidad-lbl').textContent = t === 'empresa' ? 'Empresa' : 'Entidad';
+  $('f-entidad').placeholder = t === 'empresa' ? 'Ej: Mi empresa (anticipo de nómina)' : 'Ej: Santander';
+  $('f-nombre').placeholder = t === 'amigo' ? 'Ej: Viaje a Berlín' : t === 'empresa' ? 'Ej: Préstamo de empresa' : 'Ej: Préstamo coche';
+  updatePreview();
+}
+document.querySelectorAll('#type-toggle button').forEach(b => b.onclick = () => setTipo(b.dataset.t));
+
+function updateModo() {
+  const m = $('f-modo').value;
+  $('f-limite-field').style.display = m === 'fecha' ? '' : 'none';
+  $('f-mensual-field').style.display = m === 'mensual' ? '' : 'none';
+}
+$('f-modo').onchange = updateModo;
+
+function bancoFromForm() {
+  return {
+    capital: num('f-capital'), tin: num('f-tin'), plazo: Math.round(num('f-plazo')),
+    primera: $('f-primera').value, cuota: num('f-cuota'),
+  };
+}
+
+function updatePreview() {
+  const b = bancoFromForm();
+  if (!(b.capital > 0 && b.plazo > 0 && b.primera)) {
+    $('f-preview').textContent = 'Rellena capital, plazo y primera cuota para ver el cálculo.';
+    $('f-pagadas-hint').textContent = '';
+    return;
+  }
+  const rows = cuadro(b);
+  const intereses = rows.reduce((a, r) => a + r.interes, 0);
+  const vencidas = rows.filter(r => r.fecha < today()).length;
+  const aviso = b.cuota > 0 && rows.length < b.plazo ? `<br>⚠️ Con esa cuota se termina en ${rows.length} meses.`
+    : b.cuota > 0 && rows.length && Math.abs(rows[rows.length - 1].cuota - b.cuota) > 1 ? `<br>⚠️ La última cuota sale de ${fmt(rows[rows.length - 1].cuota)}; revisa el TIN o la cuota.` : '';
+  $('f-preview').innerHTML = `Cuota: <b>${fmt(rows[0].cuota)}</b> · Intereses totales: <b>${fmt(intereses)}</b><br>
+    Total a devolver: <b>${fmt(b.capital + intereses)}</b> · Última cuota: <b>${fmtDate(rows[rows.length - 1].fecha)}</b>${aviso}`;
+  $('f-pagadas-hint').innerHTML = vencidas ? `Según fechas: ${vencidas}. <a href="#" id="f-pagadas-auto" style="color:var(--blue)">Usar</a>` : '';
+  const a = $('f-pagadas-auto');
+  if (a) a.onclick = ev => { ev.preventDefault(); $('f-pagadas').value = vencidas; };
+}
+['f-capital', 'f-tin', 'f-plazo', 'f-primera', 'f-cuota'].forEach(id => $(id).addEventListener('input', updatePreview));
+
+const FORM_IDS = ['f-nombre', 'f-entidad', 'f-capital', 'f-tin', 'f-plazo', 'f-primera', 'f-cuota', 'f-pagadas',
+  'f-persona', 'f-importe', 'f-fecha', 'f-devuelto', 'f-limite', 'f-acordada', 'f-primer-pago', 'f-notas'];
+
+function resetForm() {
+  editingId = null;
+  FORM_IDS.forEach(id => $(id).value = '');
+  $('f-fecha').value = today();
+  $('f-modo').value = 'libre';
+  $('btn-save').textContent = 'Añadir deuda';
+  $('btn-cancel').style.display = 'none';
+  $('f-devuelto-field').style.display = '';
+  document.querySelectorAll('#type-toggle button').forEach(b => b.disabled = false);
+  updateModo(); setTipo(tipoForm);
+}
+
+function startEdit(d) {
+  resetForm();
+  editingId = d.id;
+  setTipo(d.tipo);
+  document.querySelectorAll('#type-toggle button').forEach(b => b.disabled = b.dataset.t !== d.tipo && (d.tipo === 'amigo' || b.dataset.t === 'amigo'));
+  $('f-nombre').value = d.nombre || '';
+  $('f-notas').value = d.notas || '';
+  if (d.tipo === 'amigo') {
+    $('f-persona').value = d.persona || '';
+    $('f-importe').value = d.importe || '';
+    $('f-fecha').value = d.fecha || '';
+    $('f-modo').value = d.modo || 'libre';
+    $('f-limite').value = d.limite || '';
+    $('f-acordada').value = d.acordada || '';
+    $('f-primer-pago').value = d.primerPago || '';
+    $('f-devuelto-field').style.display = 'none'; // las devoluciones se gestionan en el historial
+    updateModo();
+  } else {
+    $('f-entidad').value = d.entidad || '';
+    $('f-capital').value = d.capital || '';
+    $('f-tin').value = d.tin || '';
+    $('f-plazo').value = d.plazo || '';
+    $('f-primera').value = d.primera || '';
+    $('f-cuota').value = d.cuota || '';
+    $('f-pagadas').value = d.pagadas || '';
+    updatePreview();
+  }
+  $('btn-save').textContent = 'Guardar cambios';
+  $('btn-cancel').style.display = '';
+  showView('anadir');
+}
+$('btn-cancel').onclick = () => { resetForm(); showView('deudas'); };
+
+$('btn-save').onclick = async () => {
+  const nombre = $('f-nombre').value.trim();
+  const notas = $('f-notas').value.trim();
+  let o;
+  if (tipoForm === 'amigo') {
+    const importe = num('f-importe'), modo = $('f-modo').value;
+    o = { tipo: 'amigo', nombre: nombre || ('Préstamo de ' + $('f-persona').value.trim()), notas,
+      persona: $('f-persona').value.trim(), importe, fecha: $('f-fecha').value, modo,
+      limite: modo === 'fecha' ? $('f-limite').value : '',
+      acordada: modo === 'mensual' ? num('f-acordada') : 0,
+      primerPago: modo === 'mensual' ? $('f-primer-pago').value : '' };
+    if (!o.persona || !(importe > 0)) return alert('Indica la persona y el importe');
+    if (modo === 'fecha' && !o.limite) return alert('Indica la fecha límite');
+    if (modo === 'mensual' && !(o.acordada > 0 && o.primerPago)) return alert('Indica la cuota acordada y el primer pago');
+    if (!editingId) {
+      const dev = num('f-devuelto');
+      o.abonos = dev > 0 ? [{ importe: r2(dev), fecha: o.fecha || today(), nota: 'Devuelto antes de apuntarlo' }] : [];
+    }
+  } else {
+    const b = bancoFromForm();
+    o = { tipo: tipoForm, nombre, notas, entidad: $('f-entidad').value.trim(), ...b, pagadas: Math.max(0, Math.round(num('f-pagadas'))) };
+    if (!nombre || !(b.capital > 0) || !(b.plazo > 0) || !b.primera) return alert('Completa nombre, capital, plazo y fecha de la primera cuota');
+  }
+  const btn = $('btn-save');
+  btn.disabled = true;
+  if (editingId) {
+    const id = editingId;
+    await save(() => store.update(id, o));
+  } else {
+    await save(() => store.add({ ...o, ts: Date.now() }));
+  }
+  btn.disabled = false;
+  resetForm();
+  showView('deudas');
+};
+
+// ── Arranque ──
+function onData(list) {
+  deudas = list;
+  render();
+  const open = $('modal').dataset.id;
+  if (open) openModal(open);
+}
+
+resetForm();
+if (LOCAL) {
+  store = localStore();
+  showApp(null);
+  store.subscribe(onData);
+} else {
+  showLogin();
+  firebaseStore().then(s => { store = s; s.subscribe(onData); })
+    .catch(e => alert('No se pudo cargar Firebase: ' + e.message + '\nPrueba el modo local.'));
+}
+</script>
+</body>
+</html>
