@@ -356,7 +356,7 @@ const LOCAL = new URLSearchParams(location.search).has('local') || location.prot
 const LS_KEY = 'mis-deudas-v1';
 
 // Deudas iniciales, en tandas. Cada tanda se aplica una sola vez por cuenta:
-// «add» crea las que falten y «patch» cambia las que ya existan (si las borraste, no vuelven).
+// «add» crea las que falten, «patch» cambia las que ya existan (si las borraste, no vuelven) y «remove» las borra.
 const creditoDia1 = (id, nombre, importe, plazo = 3) => ({ id, tipo: 'credito', nombre, entidad: '', capital: importe, recibido: 0, tin: 0,
   plazo, primera: '2026-11-01', cuota: 0, pagadas: 0, extras: [], notas: `${plazo} cuotas, el día 1 de cada mes` });
 const SEEDS = [
@@ -400,6 +400,12 @@ const SEEDS = [
   } },
   // Corrección: el aplazable de ~1400 € es el crédito de 1455 €, no Moneyman.
   { id: 'seed-2026-10j', add: [], patch: { 'seed-moneyman': { aplazable: false }, 'seed-1455': { aplazable: true } } },
+  { id: 'seed-2026-10k', add: [], remove: ['seed-693-b'], patch: {
+    'seed-693-a': { nombre: 'Pagolisto 1', entidad: 'Pagolisto' },
+    'seed-923': { nombre: 'Pagolisto 2', entidad: 'Pagolisto' },
+    'seed-1455': { nombre: 'Crédito Santander 1', entidad: 'Santander' },
+    'seed-2455': { nombre: 'Crédito Santander 2', entidad: 'Santander' },
+  } },
 ];
 
 const $ = id => document.getElementById(id);
@@ -429,7 +435,8 @@ function localStore() {
           if (localStorage.getItem(flag)) continue;
           const ids = new Set(list.map(d => d.id));
           list = list.map(d => t.patch?.[d.id] ? { ...d, ...t.patch[d.id] } : d)
-            .concat(t.add.filter(d => !ids.has(d.id)).map(d => ({ ...d, ts: Date.now() })));
+            .concat(t.add.filter(d => !ids.has(d.id)).map(d => ({ ...d, ts: Date.now() })))
+            .filter(d => !(t.remove || []).includes(d.id));
           localStorage.setItem(LS_KEY, JSON.stringify(list));
           localStorage.setItem(flag, '1');
         }
@@ -467,6 +474,7 @@ async function firebaseStore() {
       await Promise.all(Object.entries(t.patch || {}).map(async ([id, patch]) => {
         if ((await F.getDoc(ref(id))).exists()) await F.updateDoc(ref(id), patch);
       }));
+      await Promise.all((t.remove || []).map(id => F.deleteDoc(ref(id))));
       await F.setDoc(flag, { [t.id]: true }, { merge: true });
     }
   }
