@@ -325,15 +325,24 @@ const firebaseConfig = {
 const LOCAL = new URLSearchParams(location.search).has('local') || location.protocol === 'file:';
 const LS_KEY = 'mis-deudas-v1';
 
-// Deudas iniciales: se cargan una sola vez por cuenta (si las borras, no vuelven).
-const SEED_ID = 'seed-2026-10';
-const SEED = [
-  { id: 'seed-txomin', tipo: 'amigo', nombre: 'Préstamo de Txomin', persona: 'Txomin', importe: 2000, fecha: '2026-10-01', abonos: [], notas: '' },
-  { id: 'seed-sergio', tipo: 'amigo', nombre: 'Préstamo de Sergio', persona: 'Sergio', importe: 1500, fecha: '2026-10-01', abonos: [], notas: '' },
-  { id: 'seed-joserra', tipo: 'amigo', nombre: 'Préstamo de Joserra', persona: 'Joserra', importe: 200, fecha: '2026-10-01', abonos: [], notas: '' },
-  { id: 'seed-empresa', tipo: 'empresa', nombre: 'Préstamo de empresa', entidad: '', capital: 1994, recibido: 0, tin: 0,
-    plazo: Math.ceil(1994 / 96), primera: '2026-10-31', cuota: 96, pagadas: 0, extras: [], notas: '96 € al mes hasta terminar' },
-].map(d => ({ ...d, ts: Date.now() }));
+// Deudas iniciales, en tandas. Cada tanda se aplica una sola vez por cuenta:
+// «add» crea las que falten y «patch» cambia las que ya existan (si las borraste, no vuelven).
+const credito3 = (id, nombre, importe) => ({ id, tipo: 'credito', nombre, entidad: '', capital: importe, recibido: 0, tin: 0,
+  plazo: 3, primera: '2026-11-01', cuota: 0, pagadas: 0, extras: [], notas: '3 cuotas, el día 1 de cada mes' });
+const SEEDS = [
+  { id: 'seed-2026-10', add: [
+    { id: 'seed-txomin', tipo: 'amigo', nombre: 'Préstamo de Txomin', persona: 'Txomin', importe: 2000, fecha: '2026-10-01', abonos: [], notas: '' },
+    { id: 'seed-sergio', tipo: 'amigo', nombre: 'Préstamo de Sergio', persona: 'Sergio', importe: 1500, fecha: '2026-10-01', abonos: [], notas: '' },
+    { id: 'seed-joserra', tipo: 'amigo', nombre: 'Préstamo de Joserra', persona: 'Joserra', importe: 200, fecha: '2026-10-01', abonos: [], notas: '' },
+    { id: 'seed-empresa', tipo: 'empresa', nombre: 'Santander', entidad: '', capital: 1994, recibido: 0, tin: 0,
+      plazo: Math.ceil(1994 / 96), primera: '2026-10-31', cuota: 96, pagadas: 0, extras: [], notas: '96 € al mes hasta terminar' },
+  ] },
+  { id: 'seed-2026-10b', add: [
+    credito3('seed-693-a', 'Crédito 693 € (1)', 693),
+    credito3('seed-693-b', 'Crédito 693 € (2)', 693),
+    credito3('seed-923', 'Crédito 923 €', 923),
+  ], patch: { 'seed-empresa': { nombre: 'Santander' } } },
+];
 
 const $ = id => document.getElementById(id);
 const TIPOS = {
@@ -356,10 +365,14 @@ function localStore() {
     subscribe(fn) {
       cb = fn;
       try {
-        const flag = 'mis-deudas-' + SEED_ID;
-        if (!localStorage.getItem(flag)) {
-          const ids = new Set(read().map(d => d.id));
-          localStorage.setItem(LS_KEY, JSON.stringify([...read(), ...SEED.filter(d => !ids.has(d.id))]));
+        let list = read();
+        for (const t of SEEDS) {
+          const flag = 'mis-deudas-' + t.id;
+          if (localStorage.getItem(flag)) continue;
+          const ids = new Set(list.map(d => d.id));
+          list = list.map(d => t.patch?.[d.id] ? { ...d, ...t.patch[d.id] } : d)
+            .concat(t.add.filter(d => !ids.has(d.id)).map(d => ({ ...d, ts: Date.now() })));
+          localStorage.setItem(LS_KEY, JSON.stringify(list));
           localStorage.setItem(flag, '1');
         }
       } catch {}
@@ -386,9 +399,18 @@ async function firebaseStore() {
   async function sembrar() {
     const flag = F.doc(db, `users/${uid}/config/deudas-seed`);
     const snap = await F.getDoc(flag);
-    if (snap.exists() && snap.data()[SEED_ID]) return;
-    await Promise.all(SEED.map(({ id, ...d }) => F.setDoc(F.doc(db, `users/${uid}/deudas`, id), d)));
-    await F.setDoc(flag, { [SEED_ID]: true }, { merge: true });
+    const hechas = snap.exists() ? snap.data() : {};
+    for (const t of SEEDS) {
+      if (hechas[t.id]) continue;
+      const ref = id => F.doc(db, `users/${uid}/deudas`, id);
+      await Promise.all(t.add.map(async ({ id, ...d }) => {
+        if (!(await F.getDoc(ref(id))).exists()) await F.setDoc(ref(id), { ...d, ts: Date.now() });
+      }));
+      await Promise.all(Object.entries(t.patch || {}).map(async ([id, patch]) => {
+        if ((await F.getDoc(ref(id))).exists()) await F.updateDoc(ref(id), patch);
+      }));
+      await F.setDoc(flag, { [t.id]: true }, { merge: true });
+    }
   }
   return {
     subscribe(fn) {
