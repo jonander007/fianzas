@@ -210,6 +210,7 @@ tr.cancel td{color:var(--amber);font-weight:500}
     <button class="nav-btn" data-view="deudas">Deudas</button>
     <button class="nav-btn" data-view="calendario">Calendario</button>
     <button class="nav-btn" data-view="anadir">+ Añadir</button>
+    <button class="nav-btn" data-view="apuestas">Apuestas</button>
   </nav>
 
   <!-- RESUMEN -->
@@ -260,6 +261,27 @@ tr.cancel td{color:var(--amber);font-weight:500}
   </div>
 
   <!-- AÑADIR / EDITAR -->
+  <!-- APUESTAS: registro paralelo, no cuenta como deuda -->
+  <div id="view-apuestas" class="view">
+    <div class="sum-grid">
+      <div class="sum-card full">
+        <div class="lbl">Resultado neto de apuestas</div>
+        <div class="sum-val big" id="ap-total">€0</div>
+        <div class="sum-sub" id="ap-sub">—</div>
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="row2">
+        <div class="field"><label>Importe (€)</label><input id="ap-imp" type="number" inputmode="decimal" step="0.01" placeholder="+ ganado / − perdido"></div>
+        <div class="field"><label>Fecha</label><input id="ap-fecha" type="date"></div>
+      </div>
+      <div class="field"><label>Nota — opcional</label><input id="ap-nota" type="text" placeholder="Partido, casa de apuestas..."></div>
+      <button class="btn-sub" id="ap-save">Añadir movimiento</button>
+    </div>
+    <div class="sec-hd"><h3>Movimientos</h3></div>
+    <div id="ap-list"></div>
+  </div>
+
   <div id="view-anadir" class="view">
     <div class="form-card">
       <div class="type-toggle" id="type-toggle">
@@ -356,6 +378,15 @@ const SEEDS = [
     'seed-empresa': { primera: '2026-11-01', notas: '96 € el día 1 de cada mes hasta terminar' },
   } },
   { id: 'seed-2026-10g', add: [], patch: { 'seed-vivus': { pagadas: 1 } } }, // cuota 1 pagada el 1 oct 2026
+  { id: 'seed-2026-10h', add: [
+    { id: 'seed-moneyman', tipo: 'credito', nombre: 'Moneyman', entidad: 'Moneyman', capital: 1400, recibido: 0, tin: 0,
+      plazo: 1, primera: '2026-10-01', cuota: 0, pagadas: 1, extras: [], notas: 'Pagado entero el 1 oct 2026' },
+    ...[['naroa', 'Naroa', 300], ['idoia', 'Idoia', 100], ['jon', 'Jon', 150]].map(([id, persona, importe]) => ({
+      id: 'seed-' + id, tipo: 'amigo', nombre: 'Préstamo de ' + persona, persona, importe, fecha: '2026-10-01',
+      abonos: [{ importe, fecha: '2026-10-01', nota: 'Devuelto entero' }], notas: '' })),
+    { id: 'seed-apuesta-1', tipo: 'apuesta', fecha: '2026-10-01', importe: 987,
+      nota: 'Calculado: tenía 2300 €, pagué 2487 € (Vivus 537, Moneyman 1400, Naroa 300, Idoia 100, Jon 150) y me quedan 800 €' },
+  ] },
 ];
 
 const $ = id => document.getElementById(id);
@@ -366,7 +397,7 @@ const TIPOS = {
 };
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-let deudas = [];
+let deudas = [], apuestas = [];
 let filtro = 'activas', tipoForm = 'credito', editingId = null;
 let store = null;
 
@@ -864,6 +895,9 @@ async function accion(act, id, el) {
       if (!x || !confirm(x.efecto === 'cancelar' ? '¿Deshacer la cancelación?' : '¿Borrar esta amortización anticipada?')) return;
       return save(() => store.update(id, { extras: d.extras.filter((_, k) => k !== +el.dataset.i) }));
     }
+    case 'borrar-apuesta':
+      if (!confirm('¿Borrar este movimiento de apuestas?')) return;
+      return save(() => store.remove(id));
     case 'borrar':
       if (!confirm(`¿Eliminar «${d.nombre}»? No se puede deshacer.`)) return;
       closeModal();
@@ -1009,10 +1043,36 @@ $('btn-save').onclick = async () => {
   showView('deudas');
 };
 
+// ── Apuestas ──
+function renderApuestas() {
+  const list = [...apuestas].sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.ts || 0) - (b.ts || 0));
+  let acc = 0;
+  const rows = list.map(a => ({ ...a, acc: acc = r2(acc + a.importe) })).reverse();
+  $('ap-total').textContent = (acc > 0 ? '+' : '') + fmt(acc);
+  $('ap-total').className = 'sum-val big ' + (acc >= 0 ? 'green' : 'red');
+  const gan = list.filter(a => a.importe > 0).reduce((s, a) => s + a.importe, 0);
+  const per = list.filter(a => a.importe < 0).reduce((s, a) => s + a.importe, 0);
+  $('ap-sub').textContent = list.length ? `${list.length} movimiento${list.length > 1 ? 's' : ''} · ganado ${fmt(gan)} · perdido ${fmt(-per)}` : 'Sin movimientos';
+  $('ap-list').innerHTML = rows.length ? `<div class="list">${rows.map(a => `<div class="prow">
+      <div class="pbody"><div class="pname">${fmtDate(a.fecha)}</div>${a.nota ? `<div class="pmeta">${esc(a.nota)}</div>` : ''}<div class="pmeta">Acumulado: ${fmt(a.acc)}</div></div>
+      <div class="pamt ${a.importe >= 0 ? 'green' : 'red'}">${a.importe > 0 ? '+' : ''}${fmt(a.importe)}</div>
+      <button class="mini-del" title="Borrar" data-act="borrar-apuesta" data-id="${a.id}">×</button></div>`).join('')}</div>`
+    : '<div class="empty">Sin movimientos.</div>';
+}
+$('ap-fecha').value = today();
+$('ap-save').onclick = async () => {
+  const importe = num('ap-imp'), fecha = $('ap-fecha').value;
+  if (!importe || !fecha) return alert('Indica importe (positivo si ganas, negativo si pierdes) y fecha');
+  await save(() => store.add({ tipo: 'apuesta', fecha, importe: r2(importe), nota: $('ap-nota').value.trim(), ts: Date.now() }));
+  $('ap-imp').value = ''; $('ap-nota').value = '';
+};
+
 // ── Arranque ──
 function onData(list) {
-  deudas = list;
+  deudas = list.filter(d => d.tipo !== 'apuesta');
+  apuestas = list.filter(d => d.tipo === 'apuesta');
   render();
+  renderApuestas();
   const open = $('modal').dataset.id;
   if (open) openModal(open);
 }
