@@ -327,8 +327,8 @@ const LS_KEY = 'mis-deudas-v1';
 
 // Deudas iniciales, en tandas. Cada tanda se aplica una sola vez por cuenta:
 // «add» crea las que falten y «patch» cambia las que ya existan (si las borraste, no vuelven).
-const credito3 = (id, nombre, importe) => ({ id, tipo: 'credito', nombre, entidad: '', capital: importe, recibido: 0, tin: 0,
-  plazo: 3, primera: '2026-11-01', cuota: 0, pagadas: 0, extras: [], notas: '3 cuotas, el día 1 de cada mes' });
+const creditoDia1 = (id, nombre, importe, plazo = 3) => ({ id, tipo: 'credito', nombre, entidad: '', capital: importe, recibido: 0, tin: 0,
+  plazo, primera: '2026-11-01', cuota: 0, pagadas: 0, extras: [], notas: `${plazo} cuotas, el día 1 de cada mes` });
 const SEEDS = [
   { id: 'seed-2026-10', add: [
     { id: 'seed-txomin', tipo: 'amigo', nombre: 'Préstamo de Txomin', persona: 'Txomin', importe: 2000, fecha: '2026-10-01', abonos: [], notas: '' },
@@ -338,10 +338,14 @@ const SEEDS = [
       plazo: Math.ceil(1994 / 96), primera: '2026-10-31', cuota: 96, pagadas: 0, extras: [], notas: '96 € al mes hasta terminar' },
   ] },
   { id: 'seed-2026-10b', add: [
-    credito3('seed-693-a', 'Crédito 693 € (1)', 693),
-    credito3('seed-693-b', 'Crédito 693 € (2)', 693),
-    credito3('seed-923', 'Crédito 923 €', 923),
+    creditoDia1('seed-693-a', 'Crédito 693 € (1)', 693),
+    creditoDia1('seed-693-b', 'Crédito 693 € (2)', 693),
+    creditoDia1('seed-923', 'Crédito 923 €', 923),
   ], patch: { 'seed-empresa': { nombre: 'Santander' } } },
+  { id: 'seed-2026-10c', add: [
+    creditoDia1('seed-1455', 'Crédito 1455 €', 1455, 3),
+    creditoDia1('seed-2455', 'Crédito 2455 €', 2455, 19),
+  ] },
 ];
 
 const $ = id => document.getElementById(id);
