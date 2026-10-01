@@ -398,6 +398,8 @@ const SEEDS = [
   { id: 'seed-2026-10i', add: [], patch: {
     'seed-moneyman': { aplazable: true }, 'seed-923': { aplazable: true }, 'seed-693-a': { aplazable: true },
   } },
+  // Corrección: el aplazable de ~1400 € es el crédito de 1455 €, no Moneyman.
+  { id: 'seed-2026-10j', add: [], patch: { 'seed-moneyman': { aplazable: false }, 'seed-1455': { aplazable: true } } },
 ];
 
 const $ = id => document.getElementById(id);
