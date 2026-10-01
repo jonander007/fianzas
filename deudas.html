@@ -162,6 +162,16 @@ th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
 tr.paid td{color:var(--muted2)}
 tr.late td{color:var(--red)}
 tr.nextrow td{color:var(--green)}
+tr.extra td{color:var(--amber)}
+tr.cancel td{color:var(--amber);font-weight:500}
+.banner{background:var(--amber-dim);color:var(--amber);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.7;margin-bottom:1rem}
+.banner b{font-family:var(--mono);font-weight:500}
+.panel{background:var(--surface2);border-radius:12px;padding:1rem;margin-bottom:1rem}
+.panel h4{font-size:12px;font-weight:700;margin-bottom:.75rem}
+.panel .inline-form{margin:0}
+.panel .field input,.panel .field select{background:var(--surface)}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:3px 0;color:var(--muted)}
+.kv b{font-family:var(--mono);font-weight:500;color:var(--text)}
 .inline-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1rem 0}
 .inline-form .full{grid-column:1/-1}
 .mini-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;margin-left:8px}
@@ -245,7 +255,7 @@ tr.nextrow td{color:var(--green)}
 
   <!-- CALENDARIO -->
   <div id="view-calendario" class="view">
-    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.7">Todos los pagos pendientes, mes a mes. Los préstamos de amigos sin fecha acordada no aparecen aquí.</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.7">Todos los pagos pendientes, mes a mes. Los préstamos de amigos no tienen plazo, así que no aparecen aquí.</p>
     <div id="cal"></div>
   </div>
 
@@ -264,9 +274,10 @@ tr.nextrow td{color:var(--green)}
       <div id="g-banco">
         <div class="field"><label id="f-entidad-lbl">Entidad</label><input id="f-entidad" type="text" placeholder="Ej: Santander"></div>
         <div class="row2">
-          <div class="field"><label>Capital prestado (€)</label><input id="f-capital" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00"></div>
-          <div class="field"><label>Interés TIN anual (%)</label><input id="f-tin" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0"></div>
+          <div class="field"><label>Capital del préstamo (€)</label><input id="f-capital" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00"><div class="hint">Lo que figura en el contrato.</div></div>
+          <div class="field"><label>Dinero que te dan (€)</label><input id="f-recibido" type="number" inputmode="decimal" min="0" step="0.01" placeholder="= capital"><div class="hint">Lo que te ingresan tras comisiones de apertura.</div></div>
         </div>
+        <div class="field"><label>Interés TIN anual (%)</label><input id="f-tin" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0"></div>
         <div class="row2">
           <div class="field"><label>Plazo (meses)</label><input id="f-plazo" type="number" inputmode="numeric" min="1" step="1" placeholder="Ej: 48"></div>
           <div class="field"><label>Primera cuota</label><input id="f-primera" type="date"></div>
@@ -286,18 +297,7 @@ tr.nextrow td{color:var(--green)}
           <div class="field"><label>Fecha del préstamo</label><input id="f-fecha" type="date"></div>
         </div>
         <div class="field" id="f-devuelto-field"><label>Ya devuelto (€)</label><input id="f-devuelto" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00"><div class="hint">Se guarda como primer abono.</div></div>
-        <div class="field"><label>¿Cómo se devuelve?</label>
-          <select id="f-modo">
-            <option value="libre">Cuando pueda (sin fecha)</option>
-            <option value="fecha">Todo antes de una fecha</option>
-            <option value="mensual">Cantidad fija cada mes</option>
-          </select>
-        </div>
-        <div class="field" id="f-limite-field" style="display:none"><label>Fecha límite</label><input id="f-limite" type="date"></div>
-        <div class="row2" id="f-mensual-field" style="display:none">
-          <div class="field"><label>Cuota acordada (€)</label><input id="f-acordada" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00"></div>
-          <div class="field"><label>Primer pago</label><input id="f-primer-pago" type="date"></div>
-        </div>
+        <p class="hint" style="font-size:12px;color:var(--muted);margin:-.25rem 0 1rem">Sin intereses ni plazo fijo: vas devolviendo cuando puedas.</p>
       </div>
 
       <div class="field"><label>Notas — opcional</label><input id="f-notas" type="text" placeholder="Condiciones, comisiones..."></div>
@@ -424,88 +424,118 @@ function cuotaFrancesa(capital, tin, n) {
   return i ? capital * i / (1 - Math.pow(1 + i, -n)) : capital / n;
 }
 
-function cuadro(d) {
-  const i = (d.tin || 0) / 100 / 12;
-  const cuota = d.cuota > 0 ? d.cuota : cuotaFrancesa(d.capital, d.tin || 0, d.plazo);
+// Genera cuotas y, si conExtras, intercala amortizaciones anticipadas y la cancelación.
+// Un pago extra se aplica antes de la cuota cuya fecha es posterior a la suya.
+function cuadro(d, conExtras = true) {
+  const i = (d.tin || 0) / 100 / 12, n = d.plazo;
+  let cuota = d.cuota > 0 ? d.cuota : cuotaFrancesa(d.capital, d.tin || 0, n);
+  const extras = conExtras ? (d.extras || []).map((x, idx) => ({ ...x, idx })).sort((a, b) => a.fecha.localeCompare(b.fecha)) : [];
   const rows = [];
-  let saldo = d.capital;
-  for (let k = 0; k < d.plazo && saldo > 0.005; k++) {
+  let saldo = d.capital, e = 0;
+  for (let k = 0; k < n && saldo > 0.005; k++) {
+    const fecha = addMonths(d.primera, k);
+    while (e < extras.length && extras[e].fecha < fecha && saldo > 0.005) {
+      const x = extras[e++];
+      const amort = r2(Math.min(x.importe, saldo));
+      const comision = x.efecto === 'cancelar' ? r2(x.importe - amort) : (x.comision || 0);
+      saldo = r2(saldo - amort);
+      rows.push({ tipo: 'extra', efecto: x.efecto, idx: x.idx, fecha: x.fecha, pago: r2(x.importe + (x.efecto === 'cancelar' ? 0 : comision)), comision, amort, saldo, nota: x.nota });
+      if (x.efecto === 'cancelar') saldo = 0;
+      else if (x.efecto === 'cuota' && saldo > 0.005) {
+        // Mantiene la fecha de fin vigente (que puede ser anterior a la del contrato).
+        const resto = i ? Math.ceil(-Math.log(1 - (saldo + amort) * i / cuota) / Math.log(1 + i) - 1e-9) : Math.ceil((saldo + amort) / cuota - 1e-9);
+        cuota = cuotaFrancesa(saldo, d.tin || 0, Math.min(isFinite(resto) ? resto : n - k, n - k));
+      }
+    }
+    if (saldo <= 0.005) break;
     const interes = r2(saldo * i);
     let amort = r2(cuota - interes);
-    if (k === d.plazo - 1 || amort >= saldo) amort = r2(saldo);
+    if (k === n - 1 || amort >= saldo) amort = r2(saldo);
     saldo = r2(saldo - amort);
-    rows.push({ n: k + 1, fecha: addMonths(d.primera, k), cuota: r2(amort + interes), interes, amort, saldo });
+    rows.push({ tipo: 'cuota', n: k + 1, fecha, cuota: r2(amort + interes), interes, amort, saldo });
   }
   return rows;
 }
 
-// ── Amigo: lo devuelto y el plan acordado ──
-const devuelto = d => r2((d.abonos || []).reduce((a, x) => a + x.importe, 0));
-
-function planAmigo(d) {
-  const pend = r2(d.importe - devuelto(d));
-  if (pend <= 0) return [];
-  if (d.modo === 'fecha' && d.limite) return [{ fecha: d.limite, importe: pend }];
-  if (d.modo === 'mensual' && d.acordada > 0 && d.primerPago) {
-    // El plazo k vence cuando lo acumulado acordado (k+1)·cuota supera lo devuelto.
-    const dev = devuelto(d), out = [];
-    let k = Math.floor((dev + 0.005) / d.acordada), rest = pend;
-    while (rest > 0.005 && out.length < 240) {
-      const imp = r2(Math.min(d.acordada * (k + 1) - dev, rest, d.acordada));
-      out.push({ fecha: addMonths(d.primerPago, k), importe: imp });
-      rest = r2(rest - imp); k++;
-    }
-    return out;
-  }
-  return [];
+// TAE aproximada: tipo que iguala lo recibido con las cuotas mensuales.
+function tae(recibido, pagos) {
+  if (!(recibido > 0) || !pagos.length) return null;
+  const f = r => pagos.reduce((a, p, k) => a + p / Math.pow(1 + r, k + 1), 0) - recibido;
+  if (f(0) <= 0) return 0;
+  let lo = 0, hi = 1;
+  for (let it = 0; it < 80; it++) { const m = (lo + hi) / 2; f(m) > 0 ? lo = m : hi = m; }
+  return Math.pow(1 + lo, 12) - 1;
 }
+
+// Capital pendiente justo antes de una fecha, según el cuadro.
+function saldoEn(d, fecha) {
+  let s = d.capital;
+  for (const r of cuadro(d)) { if (r.fecha >= fecha) break; s = r.saldo; }
+  return s;
+}
+
+// ── Amigo: sin intereses ni plazo, solo devoluciones ──
+const devuelto = d => r2((d.abonos || []).reduce((a, x) => a + x.importe, 0));
 
 // ── Estado derivado de cada deuda ──
 function estado(d) {
   if (d.tipo === 'amigo') {
     const dev = devuelto(d), pend = r2(Math.max(d.importe - dev, 0));
-    return { total: d.importe, pagado: dev, pendiente: pend, pct: d.importe ? dev / d.importe : 1, plan: planAmigo(d), saldada: pend <= 0 };
+    return { total: d.importe, pagado: dev, pendiente: pend, pct: d.importe ? dev / d.importe : 1, plan: [], saldada: pend <= 0 };
   }
   const rows = cuadro(d);
-  const pagadas = Math.min(d.pagadas || 0, rows.length);
-  const pend = rows.slice(pagadas);
-  const pendienteCapital = pagadas ? rows[pagadas - 1].saldo : d.capital;
+  const cuotas = rows.filter(r => r.tipo === 'cuota');
+  const extras = rows.filter(r => r.tipo === 'extra');
+  const pagadas = Math.min(d.pagadas || 0, cuotas.length);
+  const pend = cuotas.slice(pagadas);
+  const cancelada = extras.find(x => x.efecto === 'cancelar') || null;
+  const recibido = d.recibido > 0 ? d.recibido : d.capital;
+  const sum = (a, f) => r2(a.reduce((s, r) => s + f(r), 0));
+  const pagadoCuotas = sum(cuotas.slice(0, pagadas), r => r.cuota);
+  const pagadoExtras = sum(extras, r => r.pago);
+  const pagado = r2(pagadoCuotas + pagadoExtras);
+  const porPagar = sum(pend, r => r.cuota);
+  const totalFinal = r2(pagado + porPagar);
+  const amortPagado = sum(cuotas.slice(0, pagadas), r => r.amort) + sum(extras, r => r.amort);
+  const orig = cuadro(d, false);
+  const totalOrig = sum(orig, r => r.cuota);
   return {
-    rows, pagadas,
+    rows, cuotas, extras, pagadas, cancelada, recibido,
     total: d.capital,
-    pagado: r2(d.capital - pendienteCapital),
-    pendiente: pend.length ? pendienteCapital : 0,
-    porPagar: r2(pend.reduce((a, r) => a + r.cuota, 0)),
-    intereses: r2(rows.reduce((a, r) => a + r.interes, 0)),
-    pct: rows.length ? pagadas / rows.length : 1,
+    pagado, porPagar, totalFinal, totalOrig,
+    pendiente: pend.length ? r2(Math.max(d.capital - amortPagado, 0)) : 0,
+    intereses: sum(cuotas, r => r.interes),
+    comisiones: r2(Math.max(d.capital - recibido, 0) + sum(extras, r => r.comision)),
+    coste: r2(totalFinal - recibido),
+    costeOrig: r2(totalOrig - recibido),
+    tae: tae(recibido, orig.map(r => r.cuota)),
+    cuotaActual: (pend[0] || cuotas[cuotas.length - 1] || {}).cuota || 0,
+    fin: cancelada ? cancelada.fecha : cuotas.length ? cuotas[cuotas.length - 1].fecha : d.primera,
+    pct: d.capital ? Math.min(amortPagado / d.capital, 1) : 1,
     plan: pend.map(r => ({ fecha: r.fecha, importe: r.cuota, n: r.n })),
     saldada: !pend.length,
   };
 }
 
-// Todos los pagos futuros/pendientes de todas las deudas.
+// Todos los pagos pendientes de todas las deudas.
 function todosLosPagos() {
   const out = [];
-  for (const d of deudas) {
-    for (const p of estado(d).plan) out.push({ ...p, d });
-  }
+  for (const d of deudas) for (const p of estado(d).plan) out.push({ ...p, d });
   return out.sort((a, b) => a.fecha.localeCompare(b.fecha));
 }
 
 // ── Render ──
-function payRow(p, extra = '') {
+function payRow(p) {
   const t = today(), dias = daysUntil(p.fecha);
   let tag = '';
   if (p.fecha < t) tag = '<span class="tag tag-red">Vencida</span>';
   else if (dias === 0) tag = '<span class="tag tag-amber">Hoy</span>';
   else if (dias <= 5) tag = `<span class="tag tag-amber">En ${dias}d</span>`;
-  const quien = p.d.tipo === 'amigo' ? p.d.persona : p.d.entidad;
-  const nTxt = p.n ? ` · cuota ${p.n}/${p.d.plazo}` : '';
   return `<div class="prow t-${p.d.tipo}">
     <div class="pico">${TIPOS[p.d.tipo].icon}</div>
     <div class="pbody">
       <div class="pname">${esc(p.d.nombre)}${tag}</div>
-      <div class="pmeta">${fmtDate(p.fecha)}${quien ? ' · ' + esc(quien) : ''}${nTxt}${extra}</div>
+      <div class="pmeta">${fmtDate(p.fecha)}${p.d.entidad ? ' · ' + esc(p.d.entidad) : ''}${p.n ? ` · cuota ${p.n}` : ''}</div>
     </div>
     <div class="pamt ${p.fecha < t ? 'red' : ''}">${fmt(p.importe)}</div>
   </div>`;
@@ -516,9 +546,12 @@ function renderResumen() {
   const porTipo = { credito: 0, empresa: 0, amigo: 0 };
   est.forEach(({ d, e }) => porTipo[d.tipo] += e.pendiente);
   const total = porTipo.credito + porTipo.empresa + porTipo.amigo;
-  const activas = est.filter(x => !x.e.saldada).length;
+  const activas = est.filter(x => !x.e.saldada);
+  const coste = activas.filter(x => x.d.tipo !== 'amigo').reduce((a, x) => a + x.e.coste, 0);
   $('s-total').textContent = fmt(total);
-  $('s-total-sub').textContent = activas ? `${activas} deuda${activas > 1 ? 's' : ''} activa${activas > 1 ? 's' : ''}` : 'Sin deudas activas 🎉';
+  $('s-total-sub').textContent = activas.length
+    ? `${activas.length} deuda${activas.length > 1 ? 's' : ''} activa${activas.length > 1 ? 's' : ''}${coste > 0 ? ` · los préstamos te cuestan ${fmt(coste)} en total` : ''}`
+    : 'Sin deudas activas 🎉';
   $('s-mix').innerHTML = total ? ['credito', 'empresa', 'amigo'].map(t =>
     porTipo[t] ? `<div class="t-${t}" style="width:${porTipo[t] / total * 100}%;background:var(--c)" title="${TIPOS[t].label}: ${fmt(porTipo[t])}"></div>` : '').join('') : '';
   for (const t in porTipo) $('s-' + t).textContent = fmt(porTipo[t], 0);
@@ -528,67 +561,70 @@ function renderResumen() {
   const venc = pagos.filter(p => p.fecha < t);
   $('s-mes-lbl').textContent = MONTHS[new Date().getMonth()];
   $('s-mes').textContent = fmt(mes.reduce((a, p) => a + p.importe, 0));
-  $('s-mes-sub').textContent = mes.length ? `${mes.length} pago${mes.length > 1 ? 's' : ''} pendiente${mes.length > 1 ? 's' : ''}` : 'Nada pendiente';
+  $('s-mes-sub').textContent = mes.length ? `${mes.length} cuota${mes.length > 1 ? 's' : ''} pendiente${mes.length > 1 ? 's' : ''}` : 'Nada pendiente';
   const vt = venc.reduce((a, p) => a + p.importe, 0);
   $('s-venc').textContent = fmt(vt);
   $('s-venc').className = 'sum-val ' + (vt ? 'red' : 'green');
-  $('s-venc-sub').textContent = venc.length ? `${venc.length} pago${venc.length > 1 ? 's' : ''} atrasado${venc.length > 1 ? 's' : ''}` : 'Todo al día';
+  $('s-venc-sub').textContent = venc.length ? `${venc.length} cuota${venc.length > 1 ? 's' : ''} atrasada${venc.length > 1 ? 's' : ''}` : 'Todo al día';
 
   const lim = isoOf(new Date(Date.now() + 30 * 864e5));
   const prox = pagos.filter(p => p.fecha <= lim);
   $('s-30-tot').textContent = prox.length ? fmt(prox.reduce((a, p) => a + p.importe, 0)) : '';
   $('s-30').innerHTML = prox.length
-    ? `<div class="list">${prox.map(p => payRow(p)).join('')}</div>`
-    : '<div class="empty">No hay pagos en los próximos 30 días.</div>';
+    ? `<div class="list">${prox.map(payRow).join('')}</div>`
+    : '<div class="empty">No hay cuotas en los próximos 30 días.</div>';
 }
 
 function cardBanco(d, e) {
   const sig = e.plan[0];
   const atrasadas = e.plan.filter(p => p.fecha < today()).length;
+  const extrasN = e.extras.filter(x => x.efecto !== 'cancelar').length;
+  const estadoTag = e.cancelada ? '<span class="tag tag-amber">Cancelado</span>'
+    : atrasadas ? `<span class="tag tag-red">${atrasadas} vencida${atrasadas > 1 ? 's' : ''}</span>` : '';
   return `<div class="card t-${d.tipo}">
     <div class="card-hd">
       <div>
-        <div class="card-title">${TIPOS[d.tipo].icon} ${esc(d.nombre)} <span class="badge">${TIPOS[d.tipo].label}</span>
-          ${atrasadas ? `<span class="tag tag-red">${atrasadas} vencida${atrasadas > 1 ? 's' : ''}</span>` : ''}</div>
+        <div class="card-title">${TIPOS[d.tipo].icon} ${esc(d.nombre)} <span class="badge">${TIPOS[d.tipo].label}</span>${estadoTag}</div>
         ${d.entidad ? `<div class="card-sub">${esc(d.entidad)}</div>` : ''}
       </div>
     </div>
     <div class="meta">
-      <span>💶 ${fmt(e.rows[0]?.cuota || 0)}/mes</span>
+      <span>💰 Te dieron ${fmt(e.recibido)}</span>
+      <span>💸 Te cuesta ${fmt(e.coste)}</span>
+      ${e.saldada ? '' : `<span>💶 ${fmt(e.cuotaActual)}/mes</span>`}
       <span>📈 TIN ${(d.tin || 0).toLocaleString('es-ES')}%</span>
-      <span>🏁 Fin: ${e.rows.length ? fmtDate(e.rows[e.rows.length - 1].fecha) : '—'}</span>
+      <span>🏁 ${e.saldada ? 'Terminado' : 'Fin'}: ${fmtDate(e.fin)}</span>
+      ${extrasN ? `<span>⚡ ${extrasN} ${extrasN > 1 ? 'amortizaciones' : 'amortización'} anticipada${extrasN > 1 ? 's' : ''}</span>` : ''}
       ${d.notas ? `<span>📝 ${esc(d.notas)}</span>` : ''}
     </div>
     <div class="track"><div class="fill" style="width:${e.pct * 100}%"></div></div>
-    <div class="nums"><span style="color:var(--muted)">Cuota ${e.pagadas} de ${e.rows.length}</span>
-      <span class="rem">${e.saldada ? '✓ Saldado' : 'Capital pendiente ' + fmt(e.pendiente)}</span></div>
+    <div class="nums">
+      <span style="color:var(--muted)">${e.saldada ? 'Pagado finalmente' : `Cuota ${e.pagadas} de ${e.cuotas.length}`}</span>
+      <span class="rem">${e.saldada ? fmt(e.totalFinal) : 'Capital pendiente ' + fmt(e.pendiente)}</span>
+    </div>
     ${sig ? `<div class="next"><span style="color:var(--muted)">Próxima: ${fmtDate(sig.fecha)}</span><span class="v">${fmt(sig.importe)}</span></div>` : ''}
     <div class="actions">
       ${sig ? `<button class="btn pay" data-act="pagar" data-id="${d.id}">✓ Pagar cuota ${sig.n}</button>` : ''}
-      <button class="btn" data-act="ver" data-id="${d.id}">Cuadro</button>
+      ${sig ? `<button class="btn" data-act="form-amortizar" data-id="${d.id}">⚡ Amortizar</button>` : ''}
+      <button class="btn" data-act="ver" data-id="${d.id}">Detalle</button>
       <button class="btn" data-act="editar" data-id="${d.id}">Editar</button>
     </div>
   </div>`;
 }
 
 function cardAmigo(d, e) {
-  const sig = e.plan[0];
-  const modoTxt = d.modo === 'fecha' && d.limite ? `⏳ Antes del ${fmtDate(d.limite)}`
-    : d.modo === 'mensual' && d.acordada ? `💶 ${fmt(d.acordada)}/mes`
-    : '🕊 Sin fecha, cuando pueda';
+  const ult = [...(d.abonos || [])].reverse().sort((a, b) => b.fecha.localeCompare(a.fecha))[0];
   return `<div class="card t-amigo">
     <div class="card-hd">
       <div>
-        <div class="card-title">🤝 ${esc(d.nombre)} <span class="badge">Amigo</span>
-          ${sig && sig.fecha < today() ? '<span class="tag tag-red">Atrasado</span>' : ''}</div>
+        <div class="card-title">🤝 ${esc(d.nombre)} <span class="badge">Amigo</span></div>
         <div class="card-sub">${esc(d.persona || '')}${d.fecha ? ' · desde ' + fmtDate(d.fecha) : ''}</div>
       </div>
     </div>
-    <div class="meta"><span>${modoTxt}</span><span>🚫 Sin intereses</span>${d.notas ? `<span>📝 ${esc(d.notas)}</span>` : ''}</div>
+    <div class="meta"><span>🕊 Sin plazo ni intereses</span>${ult ? `<span>↩︎ Última devolución: ${fmt(ult.importe)} el ${fmtDate(ult.fecha)}</span>` : ''}${d.notas ? `<span>📝 ${esc(d.notas)}</span>` : ''}</div>
     <div class="track"><div class="fill" style="width:${Math.min(e.pct, 1) * 100}%"></div></div>
     <div class="nums"><span style="color:var(--muted)">Devuelto ${fmt(e.pagado)} de ${fmt(e.total)}</span>
       <span class="rem">${e.saldada ? '✓ Saldado' : 'Debo ' + fmt(e.pendiente)}</span></div>
-    ${sig ? `<div class="next"><span style="color:var(--muted)">Próximo: ${fmtDate(sig.fecha)}</span><span class="v">${fmt(sig.importe)}</span></div>` : ''}
     <div class="actions">
       ${!e.saldada ? `<button class="btn pay" data-act="abono" data-id="${d.id}">+ Devolver</button>` : ''}
       <button class="btn" data-act="ver" data-id="${d.id}">Historial</button>
@@ -609,77 +645,118 @@ function renderDeudas() {
 function renderCalendario() {
   const pagos = todosLosPagos(), t = today();
   const venc = pagos.filter(p => p.fecha < t);
-  const fut = pagos.filter(p => p.fecha >= t);
   const grupos = new Map();
-  fut.forEach(p => { const k = monthKey(p.fecha); if (!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(p); });
+  pagos.filter(p => p.fecha >= t).forEach(p => { const k = monthKey(p.fecha); if (!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(p); });
   const bloque = (titulo, ps, cls = '') => `<div class="sec-hd"><h3 class="${cls}">${titulo}</h3><span class="tot ${cls}">${fmt(ps.reduce((a, p) => a + p.importe, 0))}</span></div>
-    <div class="list">${ps.map(p => payRow(p)).join('')}</div>`;
+    <div class="list">${ps.map(payRow).join('')}</div>`;
   let html = venc.length ? bloque('⚠️ Vencido sin pagar', venc, 'red') : '';
   for (const [k, ps] of grupos) html += bloque(monthLabel(k), ps);
-  $('cal').innerHTML = html || '<div class="empty">No hay pagos programados.</div>';
+  $('cal').innerHTML = html || '<div class="empty">No hay cuotas programadas.</div>';
 }
 
 function render() { renderResumen(); renderDeudas(); renderCalendario(); }
 
-// ── Modal: cuadro de amortización / historial de abonos ──
-function openModal(id, focusAbono = false) {
+// ── Modal: detalle de préstamo / historial de devoluciones ──
+let modalForm = null; // 'amortizar' | 'cancelar' | null
+
+function modalAmigo(d, e) {
+  const abonos = [...(d.abonos || [])].map((a, i) => ({ ...a, i })).reverse().sort((a, b) => b.fecha.localeCompare(a.fecha));
+  return `
+    <div class="sum-grid">
+      <div class="sum-card"><div class="lbl">Me prestó</div><div class="sum-val">${fmt(e.total)}</div></div>
+      <div class="sum-card"><div class="lbl">Me queda</div><div class="sum-val amber">${fmt(e.pendiente)}</div></div>
+    </div>
+    ${!e.saldada ? `<div class="panel"><h4>Devolver una parte</h4><div class="inline-form">
+      <div class="field"><label>Importe (€)</label><input id="a-imp" type="number" inputmode="decimal" min="0" step="0.01" placeholder="${e.pendiente.toFixed(2)}"></div>
+      <div class="field"><label>Fecha</label><input id="a-fecha" type="date" value="${today()}"></div>
+      <div class="field full"><label>Nota — opcional</label><input id="a-nota" type="text" placeholder="Bizum, efectivo..."></div>
+      <button class="btn-sub full" data-act="guardar-abono" data-id="${d.id}">Registrar devolución</button>
+    </div></div>` : '<div class="done" style="margin-bottom:1rem">✓ Completamente devuelto</div>'}
+    <div class="sec-hd"><h3>Devoluciones</h3></div>
+    ${abonos.length ? `<div class="list">${abonos.map(a => `<div class="prow"><div class="pbody"><div class="pname">${fmtDate(a.fecha)}</div>${a.nota ? `<div class="pmeta">${esc(a.nota)}</div>` : ''}</div>
+      <div class="pamt green">${fmt(a.importe)}</div><button class="mini-del" title="Borrar" data-act="borrar-abono" data-id="${d.id}" data-i="${a.i}">×</button></div>`).join('')}</div>`
+      : '<div class="empty">Aún no has devuelto nada.</div>'}`;
+}
+
+function modalBanco(d, e) {
+  const t = today();
+  const ahorro = r2(e.costeOrig - e.coste);
+  const pendHoy = saldoEn(d, t);
+  const forms = {
+    amortizar: `<div class="panel"><h4>⚡ Amortización anticipada</h4><div class="inline-form">
+      <div class="field"><label>Importe a capital (€)</label><input id="x-imp" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00"></div>
+      <div class="field"><label>Fecha</label><input id="x-fecha" type="date" value="${t}"></div>
+      <div class="field"><label>Comisión (€)</label><input id="x-com" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00"></div>
+      <div class="field"><label>¿Qué reduces?</label><select id="x-efecto"><option value="plazo">El plazo (misma cuota)</option><option value="cuota">La cuota (mismo plazo)</option></select></div>
+      <div class="field full hint">Capital pendiente hoy: ${fmt(pendHoy)}. Reducir plazo suele ahorrar más intereses.</div>
+      <button class="btn-sub full" data-act="guardar-extra" data-id="${d.id}">Registrar amortización</button>
+    </div></div>`,
+    cancelar: `<div class="panel"><h4>✕ Cancelar el préstamo</h4><div class="inline-form">
+      <div class="field"><label>Total pagado (€)</label><input id="x-imp" type="number" inputmode="decimal" min="0" step="0.01" placeholder="${pendHoy.toFixed(2)}"></div>
+      <div class="field"><label>Fecha</label><input id="x-fecha" type="date" value="${t}"></div>
+      <div class="field full hint">Pon lo que pagaste al banco para cerrarlo: capital pendiente (${fmt(pendHoy)} hoy) más intereses del mes y comisión de cancelación. Las cuotas anteriores a esa fecha se marcan como pagadas.</div>
+      <button class="btn-sub full" data-act="guardar-cancelar" data-id="${d.id}">Registrar cancelación</button>
+    </div></div>`,
+  };
+  const cuotasRows = e.rows.map(r => {
+    if (r.tipo === 'extra') {
+      const cancel = r.efecto === 'cancelar';
+      return `<tr class="${cancel ? 'cancel' : 'extra'}"><td>${cancel ? '✕' : '⚡'}</td><td>${fmtDate(r.fecha)}</td><td>${fmt(r.pago)}</td><td>${r.comision ? fmt(r.comision) : '—'}</td><td>${fmt(r.amort)}</td><td>${fmt(r.saldo)}<button class="mini-del" title="Borrar" data-act="borrar-extra" data-id="${d.id}" data-i="${r.idx}">×</button></td></tr>`;
+    }
+    const cls = r.n <= e.pagadas ? 'paid' : r.fecha < t ? 'late' : r.n === e.pagadas + 1 ? 'nextrow' : '';
+    return `<tr class="${cls}"><td>${r.n <= e.pagadas ? '✓' : r.n}</td><td>${fmtDate(r.fecha)}</td><td>${fmt(r.cuota)}</td><td>${fmt(r.interes)}</td><td>${fmt(r.amort)}</td><td>${fmt(r.saldo)}</td></tr>`;
+  }).join('');
+  return `
+    ${e.cancelada ? `<div class="banner">Cancelado el ${fmtDate(e.cancelada.fecha)} pagando <b>${fmt(e.cancelada.pago)}</b>.<br>Pagado finalmente: <b>${fmt(e.totalFinal)}</b> · Coste real: <b>${fmt(e.coste)}</b></div>` : ''}
+    <div class="sum-grid">
+      <div class="sum-card"><div class="lbl">Te dieron</div><div class="sum-val green">${fmt(e.recibido)}</div><div class="sum-sub">Capital del contrato: ${fmt(d.capital)}</div></div>
+      <div class="sum-card"><div class="lbl">Te cuesta</div><div class="sum-val red">${fmt(e.coste)}</div><div class="sum-sub">${e.tae != null ? `TAE aprox. ${(e.tae * 100).toLocaleString('es-ES', { maximumFractionDigits: 2 })}%` : ''}</div></div>
+      <div class="sum-card"><div class="lbl">${e.saldada ? 'Pagado finalmente' : 'Total a devolver'}</div><div class="sum-val">${fmt(e.totalFinal)}</div>${e.extras.length ? `<div class="sum-sub">Plan original: ${fmt(e.totalOrig)}</div>` : ''}</div>
+      <div class="sum-card"><div class="lbl">Pagado hasta hoy</div><div class="sum-val">${fmt(e.pagado)}</div><div class="sum-sub">${e.saldada ? 'Nada pendiente' : `Queda: ${fmt(e.porPagar)} · capital ${fmt(e.pendiente)}`}</div></div>
+    </div>
+    <div class="panel">
+      <div class="kv"><span>Intereses${e.saldada ? '' : ' (pagados + previstos)'}</span><b>${fmt(e.intereses)}</b></div>
+      <div class="kv"><span>Comisiones y gastos</span><b>${fmt(e.comisiones)}</b></div>
+      ${ahorro > 0.005 ? `<div class="kv"><span>Ahorro por amortizar antes</span><b class="green">${fmt(ahorro)}</b></div>` : ''}
+      <div class="kv"><span>Cuotas</span><b>${e.pagadas} pagadas de ${e.cuotas.length}${e.cuotas.length !== d.plazo ? ` (contrato: ${d.plazo})` : ''}</b></div>
+    </div>
+    <div class="actions" style="margin-bottom:1rem">
+      ${!e.saldada ? `<button class="btn pay" data-act="pagar" data-id="${d.id}">✓ Pagar cuota ${e.pagadas + 1}</button>` : ''}
+      ${e.pagadas && !e.cancelada ? `<button class="btn" data-act="deshacer" data-id="${d.id}">↶ Deshacer cuota ${e.pagadas}</button>` : ''}
+      ${!e.saldada ? `<button class="btn" data-act="form-amortizar" data-id="${d.id}">⚡ Amortizar</button>
+      <button class="btn" data-act="form-cancelar" data-id="${d.id}">✕ Cancelar préstamo</button>` : ''}
+    </div>
+    ${!e.saldada && modalForm ? forms[modalForm] : ''}
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>#</th><th>Fecha</th><th>Pago</th><th>Int./Com.</th><th>Amort.</th><th>Pend.</th></tr></thead>
+      <tbody>${cuotasRows}</tbody>
+    </table></div>
+    <div class="hint" style="font-size:11px;color:var(--muted2);margin-top:8px">⚡ amortización anticipada · ✕ cancelación · en rojo, cuotas vencidas sin marcar</div>`;
+}
+
+function openModal(id, opts = {}) {
   const d = deudas.find(x => x.id === id);
   if (!d) return closeModal();
+  if ('form' in opts) modalForm = opts.form;
   const e = estado(d);
-  let body = '';
-  if (d.tipo === 'amigo') {
-    const abonos = [...(d.abonos || [])].map((a, i) => ({ ...a, i })).sort((a, b) => b.fecha.localeCompare(a.fecha));
-    body = `
-      <div class="sum-grid">
-        <div class="sum-card"><div class="lbl">Me prestó</div><div class="sum-val">${fmt(e.total)}</div></div>
-        <div class="sum-card"><div class="lbl">Me queda</div><div class="sum-val amber">${fmt(e.pendiente)}</div></div>
-      </div>
-      ${!e.saldada ? `<div class="inline-form">
-        <div class="field"><label>Importe (€)</label><input id="a-imp" type="number" inputmode="decimal" min="0" step="0.01" placeholder="${(e.plan[0]?.importe || e.pendiente).toFixed(2)}"></div>
-        <div class="field"><label>Fecha</label><input id="a-fecha" type="date" value="${today()}"></div>
-        <div class="field full"><label>Nota — opcional</label><input id="a-nota" type="text" placeholder="Bizum, efectivo..."></div>
-        <button class="btn-sub full" data-act="guardar-abono" data-id="${d.id}">Registrar devolución</button>
-      </div>` : '<div class="done" style="margin-bottom:1rem">✓ Completamente devuelto</div>'}
-      <div class="sec-hd"><h3>Devoluciones</h3></div>
-      ${abonos.length ? `<div class="list">${abonos.map(a => `<div class="prow"><div class="pbody"><div class="pname">${fmtDate(a.fecha)}</div>${a.nota ? `<div class="pmeta">${esc(a.nota)}</div>` : ''}</div>
-        <div class="pamt green">${fmt(a.importe)}</div><button class="mini-del" title="Borrar" data-act="borrar-abono" data-id="${d.id}" data-i="${a.i}">×</button></div>`).join('')}</div>`
-        : '<div class="empty">Aún no has devuelto nada.</div>'}
-      ${e.plan.length > 1 ? `<div class="sec-hd"><h3>Plan pendiente</h3></div><div class="list">${e.plan.map(p => payRow({ ...p, d })).join('')}</div>` : ''}`;
-  } else {
-    const t = today();
-    body = `
-      <div class="sum-grid">
-        <div class="sum-card"><div class="lbl">Capital pendiente</div><div class="sum-val red">${fmt(e.pendiente)}</div></div>
-        <div class="sum-card"><div class="lbl">Total por pagar</div><div class="sum-val">${fmt(e.porPagar)}</div><div class="sum-sub">Intereses totales: ${fmt(e.intereses)}</div></div>
-      </div>
-      <div class="actions" style="margin-bottom:1rem">
-        ${!e.saldada ? `<button class="btn pay" data-act="pagar" data-id="${d.id}">✓ Pagar cuota ${e.pagadas + 1}</button>` : ''}
-        ${e.pagadas ? `<button class="btn" data-act="deshacer" data-id="${d.id}">↶ Deshacer cuota ${e.pagadas}</button>` : ''}
-      </div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>#</th><th>Fecha</th><th>Cuota</th><th>Interés</th><th>Amort.</th><th>Pendiente</th></tr></thead>
-        <tbody>${e.rows.map(r => {
-          const cls = r.n <= e.pagadas ? 'paid' : r.fecha < t ? 'late' : r.n === e.pagadas + 1 ? 'nextrow' : '';
-          return `<tr class="${cls}"><td>${r.n <= e.pagadas ? '✓' : r.n}</td><td>${fmtDate(r.fecha)}</td><td>${fmt(r.cuota)}</td><td>${fmt(r.interes)}</td><td>${fmt(r.amort)}</td><td>${fmt(r.saldo)}</td></tr>`;
-        }).join('')}</tbody>
-      </table></div>`;
-  }
   $('modal').innerHTML = `<div class="modal-hd t-${d.tipo}"><h2>${TIPOS[d.tipo].icon} ${esc(d.nombre)}</h2><button class="x" data-act="cerrar">×</button></div>
-    ${body}
+    ${d.tipo === 'amigo' ? modalAmigo(d, e) : modalBanco(d, e)}
     <div class="actions" style="margin-top:1.25rem"><button class="btn danger" data-act="borrar" data-id="${d.id}">Eliminar deuda</button></div>`;
   $('modal').dataset.id = id;
   $('modal-bg').classList.add('open');
-  if (focusAbono) setTimeout(() => $('a-imp')?.focus(), 50);
+  if (opts.focus) setTimeout(() => $(opts.focus)?.focus(), 50);
 }
-function closeModal() { $('modal-bg').classList.remove('open'); delete $('modal').dataset.id; }
+function closeModal() { $('modal-bg').classList.remove('open'); delete $('modal').dataset.id; modalForm = null; }
 
 // ── Acciones ──
 async function accion(act, id, el) {
   const d = deudas.find(x => x.id === id);
   switch (act) {
     case 'cerrar': return closeModal();
-    case 'ver': return openModal(id);
-    case 'abono': return openModal(id, true);
+    case 'ver': return openModal(id, { form: null });
+    case 'abono': return openModal(id, { form: null, focus: 'a-imp' });
+    case 'form-amortizar': return openModal(id, { form: modalForm === 'amortizar' ? null : 'amortizar', focus: 'x-imp' });
+    case 'form-cancelar': return openModal(id, { form: modalForm === 'cancelar' ? null : 'cancelar', focus: 'x-imp' });
     case 'editar': closeModal(); return startEdit(d);
     case 'pagar': {
       const e = estado(d);
@@ -689,8 +766,7 @@ async function accion(act, id, el) {
     case 'deshacer':
       return save(() => store.update(id, { pagadas: Math.max(estado(d).pagadas - 1, 0) }));
     case 'guardar-abono': {
-      const ph = parseFloat($('a-imp').placeholder);
-      const imp = $('a-imp').value === '' ? ph : num('a-imp');
+      const imp = $('a-imp').value === '' ? parseFloat($('a-imp').placeholder) : num('a-imp');
       const fecha = $('a-fecha').value;
       if (!(imp > 0) || !fecha) return alert('Indica importe y fecha');
       return save(() => store.update(id, { abonos: [...(d.abonos || []), { importe: r2(imp), fecha, nota: $('a-nota').value.trim() }] }));
@@ -699,6 +775,29 @@ async function accion(act, id, el) {
       if (!confirm('¿Borrar esta devolución?')) return;
       const i = +el.dataset.i;
       return save(() => store.update(id, { abonos: (d.abonos || []).filter((_, k) => k !== i) }));
+    }
+    case 'guardar-extra': {
+      const imp = num('x-imp'), fecha = $('x-fecha').value;
+      if (!(imp > 0) || !fecha) return alert('Indica importe y fecha');
+      const x = { fecha, importe: r2(imp), comision: r2(num('x-com')), efecto: $('x-efecto').value };
+      modalForm = null;
+      return save(() => store.update(id, { extras: [...(d.extras || []), x] }));
+    }
+    case 'guardar-cancelar': {
+      const fecha = $('x-fecha').value;
+      const imp = $('x-imp').value === '' ? saldoEn(d, fecha || today()) : num('x-imp');
+      if (!(imp > 0) || !fecha) return alert('Indica importe y fecha');
+      const antes = cuadro(d).filter(r => r.tipo === 'cuota' && r.fecha <= fecha).length;
+      modalForm = null;
+      return save(() => store.update(id, {
+        extras: [...(d.extras || []).filter(x => x.efecto !== 'cancelar'), { fecha, importe: r2(imp), comision: 0, efecto: 'cancelar' }],
+        pagadas: Math.max(d.pagadas || 0, antes),
+      }));
+    }
+    case 'borrar-extra': {
+      const x = (d.extras || [])[+el.dataset.i];
+      if (!x || !confirm(x.efecto === 'cancelar' ? '¿Deshacer la cancelación?' : '¿Borrar esta amortización anticipada?')) return;
+      return save(() => store.update(id, { extras: d.extras.filter((_, k) => k !== +el.dataset.i) }));
     }
     case 'borrar':
       if (!confirm(`¿Eliminar «${d.nombre}»? No se puede deshacer.`)) return;
@@ -740,16 +839,9 @@ function setTipo(t) {
 }
 document.querySelectorAll('#type-toggle button').forEach(b => b.onclick = () => setTipo(b.dataset.t));
 
-function updateModo() {
-  const m = $('f-modo').value;
-  $('f-limite-field').style.display = m === 'fecha' ? '' : 'none';
-  $('f-mensual-field').style.display = m === 'mensual' ? '' : 'none';
-}
-$('f-modo').onchange = updateModo;
-
 function bancoFromForm() {
   return {
-    capital: num('f-capital'), tin: num('f-tin'), plazo: Math.round(num('f-plazo')),
+    capital: num('f-capital'), recibido: num('f-recibido'), tin: num('f-tin'), plazo: Math.round(num('f-plazo')),
     primera: $('f-primera').value, cuota: num('f-cuota'),
   };
 }
@@ -761,32 +853,35 @@ function updatePreview() {
     $('f-pagadas-hint').textContent = '';
     return;
   }
-  const rows = cuadro(b);
+  const rows = cuadro(b, false);
+  const total = rows.reduce((a, r) => a + r.cuota, 0);
   const intereses = rows.reduce((a, r) => a + r.interes, 0);
+  const recibido = b.recibido > 0 ? b.recibido : b.capital;
+  const t = tae(recibido, rows.map(r => r.cuota));
   const vencidas = rows.filter(r => r.fecha < today()).length;
   const aviso = b.cuota > 0 && rows.length < b.plazo ? `<br>⚠️ Con esa cuota se termina en ${rows.length} meses.`
     : b.cuota > 0 && rows.length && Math.abs(rows[rows.length - 1].cuota - b.cuota) > 1 ? `<br>⚠️ La última cuota sale de ${fmt(rows[rows.length - 1].cuota)}; revisa el TIN o la cuota.` : '';
-  $('f-preview').innerHTML = `Cuota: <b>${fmt(rows[0].cuota)}</b> · Intereses totales: <b>${fmt(intereses)}</b><br>
-    Total a devolver: <b>${fmt(b.capital + intereses)}</b> · Última cuota: <b>${fmtDate(rows[rows.length - 1].fecha)}</b>${aviso}`;
+  $('f-preview').innerHTML = `Te dan <b>${fmt(recibido)}</b> · Cuota <b>${fmt(rows[0].cuota)}</b> × ${rows.length}<br>
+    Devuelves <b>${fmt(total)}</b> · Te cuesta <b>${fmt(total - recibido)}</b> (intereses ${fmt(intereses)}${recibido < b.capital ? `, comisiones ${fmt(b.capital - recibido)}` : ''})<br>
+    ${t != null ? `TAE aprox. <b>${(t * 100).toLocaleString('es-ES', { maximumFractionDigits: 2 })}%</b> · ` : ''}Última cuota: <b>${fmtDate(rows[rows.length - 1].fecha)}</b>${aviso}`;
   $('f-pagadas-hint').innerHTML = vencidas ? `Según fechas: ${vencidas}. <a href="#" id="f-pagadas-auto" style="color:var(--blue)">Usar</a>` : '';
   const a = $('f-pagadas-auto');
   if (a) a.onclick = ev => { ev.preventDefault(); $('f-pagadas').value = vencidas; };
 }
-['f-capital', 'f-tin', 'f-plazo', 'f-primera', 'f-cuota'].forEach(id => $(id).addEventListener('input', updatePreview));
+['f-capital', 'f-recibido', 'f-tin', 'f-plazo', 'f-primera', 'f-cuota'].forEach(id => $(id).addEventListener('input', updatePreview));
 
-const FORM_IDS = ['f-nombre', 'f-entidad', 'f-capital', 'f-tin', 'f-plazo', 'f-primera', 'f-cuota', 'f-pagadas',
-  'f-persona', 'f-importe', 'f-fecha', 'f-devuelto', 'f-limite', 'f-acordada', 'f-primer-pago', 'f-notas'];
+const FORM_IDS = ['f-nombre', 'f-entidad', 'f-capital', 'f-recibido', 'f-tin', 'f-plazo', 'f-primera', 'f-cuota', 'f-pagadas',
+  'f-persona', 'f-importe', 'f-fecha', 'f-devuelto', 'f-notas'];
 
 function resetForm() {
   editingId = null;
   FORM_IDS.forEach(id => $(id).value = '');
   $('f-fecha').value = today();
-  $('f-modo').value = 'libre';
   $('btn-save').textContent = 'Añadir deuda';
   $('btn-cancel').style.display = 'none';
   $('f-devuelto-field').style.display = '';
   document.querySelectorAll('#type-toggle button').forEach(b => b.disabled = false);
-  updateModo(); setTipo(tipoForm);
+  setTipo(tipoForm);
 }
 
 function startEdit(d) {
@@ -800,15 +895,11 @@ function startEdit(d) {
     $('f-persona').value = d.persona || '';
     $('f-importe').value = d.importe || '';
     $('f-fecha').value = d.fecha || '';
-    $('f-modo').value = d.modo || 'libre';
-    $('f-limite').value = d.limite || '';
-    $('f-acordada').value = d.acordada || '';
-    $('f-primer-pago').value = d.primerPago || '';
     $('f-devuelto-field').style.display = 'none'; // las devoluciones se gestionan en el historial
-    updateModo();
   } else {
     $('f-entidad').value = d.entidad || '';
     $('f-capital').value = d.capital || '';
+    $('f-recibido').value = d.recibido || '';
     $('f-tin').value = d.tin || '';
     $('f-plazo').value = d.plazo || '';
     $('f-primera').value = d.primera || '';
@@ -827,15 +918,9 @@ $('btn-save').onclick = async () => {
   const notas = $('f-notas').value.trim();
   let o;
   if (tipoForm === 'amigo') {
-    const importe = num('f-importe'), modo = $('f-modo').value;
-    o = { tipo: 'amigo', nombre: nombre || ('Préstamo de ' + $('f-persona').value.trim()), notas,
-      persona: $('f-persona').value.trim(), importe, fecha: $('f-fecha').value, modo,
-      limite: modo === 'fecha' ? $('f-limite').value : '',
-      acordada: modo === 'mensual' ? num('f-acordada') : 0,
-      primerPago: modo === 'mensual' ? $('f-primer-pago').value : '' };
-    if (!o.persona || !(importe > 0)) return alert('Indica la persona y el importe');
-    if (modo === 'fecha' && !o.limite) return alert('Indica la fecha límite');
-    if (modo === 'mensual' && !(o.acordada > 0 && o.primerPago)) return alert('Indica la cuota acordada y el primer pago');
+    const persona = $('f-persona').value.trim(), importe = num('f-importe');
+    o = { tipo: 'amigo', nombre: nombre || ('Préstamo de ' + persona), notas, persona, importe, fecha: $('f-fecha').value };
+    if (!persona || !(importe > 0)) return alert('Indica la persona y el importe');
     if (!editingId) {
       const dev = num('f-devuelto');
       o.abonos = dev > 0 ? [{ importe: r2(dev), fecha: o.fecha || today(), nota: 'Devuelto antes de apuntarlo' }] : [];
@@ -844,6 +929,7 @@ $('btn-save').onclick = async () => {
     const b = bancoFromForm();
     o = { tipo: tipoForm, nombre, notas, entidad: $('f-entidad').value.trim(), ...b, pagadas: Math.max(0, Math.round(num('f-pagadas'))) };
     if (!nombre || !(b.capital > 0) || !(b.plazo > 0) || !b.primera) return alert('Completa nombre, capital, plazo y fecha de la primera cuota');
+    if (!editingId) o.extras = [];
   }
   const btn = $('btn-save');
   btn.disabled = true;
