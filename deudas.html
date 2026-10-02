@@ -447,6 +447,10 @@ const SEEDS = [
     'seed-moneyman-2': { aplazable: true, repedir: { recibes: 1100, devuelves: 1400 } },
     'seed-smartcredito': { aplazable: true, repedir: { recibes: 300, devuelves: 435 } },
   } },
+  { id: 'seed-2026-10o', add: [], patch: { 'seed-config': { extras: [
+    { fecha: '2026-12-29', importe: 1000, txt: 'Paga extra de diciembre' },
+    { fecha: '2027-02-28', importe: 2500, txt: 'Variable de febrero' },
+  ] } } },
 ];
 
 const $ = id => document.getElementById(id);
@@ -1189,6 +1193,7 @@ function renderPrevision() {
       if (config.gastos && mes >= (config.gastosDesde || '') && m > ini && m <= fin) ev.push({ fecha: m, txt: 'Gastos de vida', imp: -config.gastos });
     }
   }
+  for (const x of config?.extras || []) if (x.fecha > ini && x.fecha <= fin) ev.push({ fecha: x.fecha, txt: x.txt, imp: x.importe });
   ev.sort((a, b) => a.fecha.localeCompare(b.fecha) || b.imp - a.imp);
   let b = sal.importe, min = { v: b, f: ini };
   const rows = ev.map(e => { b = r2(b + e.imp); if (b < min.v) min = { v: b, f: e.fecha }; return { ...e, saldo: b }; });
@@ -1199,6 +1204,7 @@ function renderPrevision() {
   $('pv-config').innerHTML = `<h4>Supuestos</h4>
     <div class="kv"><span>Saldo de partida</span><b>${fmt(sal.importe)} · ${fmtDate(ini)}</b></div>
     ${(config?.nomina || []).map(n => `<div class="kv"><span>Nómina desde ${monthLabel(n.desde).toLowerCase()} (día ${config.diaNomina})</span><b>${fmt(n.importe)}</b></div>`).join('')}
+    ${(config?.extras || []).map(x => `<div class="kv"><span>${esc(x.txt)} (${fmtDate(x.fecha)})</span><b>${fmt(x.importe)}</b></div>`).join('')}
     ${config?.gastos ? `<div class="kv"><span>Gastos de vida desde ${monthLabel(config.gastosDesde).toLowerCase()} (día 1)</span><b>${fmt(config.gastos)}/mes</b></div>` : ''}
     <div class="kv"><span>Préstamos de amigos</span><b>no entran (sin plazo)</b></div>`;
   const rp = deudas.filter(d => d.aplazable);
