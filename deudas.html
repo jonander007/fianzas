@@ -451,7 +451,12 @@ const SEEDS = [
     { fecha: '2026-12-29', importe: 1000, txt: 'Paga extra de diciembre' },
     { fecha: '2027-02-28', importe: 2500, txt: 'Variable de febrero' },
   ] } } },
-  { id: 'seed-2026-10p', add: [], patch: { 'seed-config': { gastos: 700, gastosDesde: '2026-11' } } },
+  { id: 'seed-2026-10p', add: [], patch: { 'seed-config': { gastos: 700, gastosDesde: '2026-11' } } },  // Plan: aplazar Pagolisto y Crédito Santander 1 y pagarlos en 3 cuotas desde que haya margen.
+  { id: 'seed-2026-10q', add: [], patch: {
+    'seed-693-a': { primera: '2026-12-01', notas: 'Aplazado el 1 nov; 3 cuotas dic–feb' },
+    'seed-923': { primera: '2027-01-01', notas: 'Aplazado el 1 nov y el 1 dic; cuota de enero y las dos últimas juntas el 1 feb' },
+    'seed-1455': { primera: '2027-02-01', notas: 'Aplazado nov, dic y ene; 3 cuotas feb–abr' },
+  } },
 ];
 
 const $ = id => document.getElementById(id);
