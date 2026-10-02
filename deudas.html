@@ -238,6 +238,14 @@ tr.cancel td{color:var(--amber);font-weight:500}
       <div class="sum-card t-empresa"><div class="lbl">🏢 Empresa</div><div class="sum-val" style="color:var(--c)" id="s-empresa">€0</div></div>
       <div class="sum-card t-amigo"><div class="lbl">🤝 Amigos</div><div class="sum-val" style="color:var(--c)" id="s-amigo">€0</div></div>
     </div>
+    <div class="sum-grid">
+      <div class="sum-card full">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+          <div><div class="lbl">💳 Saldo en cuenta</div><div class="sum-val" id="s-saldo">—</div><div class="sum-sub" id="s-saldo-sub">Sin datos</div></div>
+          <button class="btn" style="flex:0 0 auto" data-act="saldo">Actualizar</button>
+        </div>
+      </div>
+    </div>
     <div class="sum-grid" id="s-apl-wrap">
       <div class="sum-card"><div class="lbl">♻️ Aplazables pendientes</div><div class="sum-val" id="s-apl-pend">€0</div><div class="sum-sub" id="s-apl-pend-sub">—</div></div>
       <div class="sum-card"><div class="lbl">♻️ Se pueden volver a pedir</div><div class="sum-val green" id="s-apl-disp">€0</div><div class="sum-sub" id="s-apl-disp-sub">—</div></div>
@@ -406,6 +414,14 @@ const SEEDS = [
     'seed-1455': { nombre: 'Crédito Santander 1', entidad: 'Santander' },
     'seed-2455': { nombre: 'Crédito Santander 2', entidad: 'Santander' },
   } },
+  { id: 'seed-2026-10l', add: [
+    { id: 'seed-moneyman-2', tipo: 'credito', nombre: 'Moneyman', entidad: 'Moneyman', capital: 1400, recibido: 0, tin: 0,
+      plazo: 1, primera: '2026-11-01', cuota: 0, pagadas: 0, extras: [], notas: 'Pedido el 2 oct 2026; vencimiento supuesto a 30 días' },
+    { id: 'seed-saldo-1', tipo: 'saldo', fecha: '2026-10-01', importe: 800 },
+    { id: 'seed-saldo-2', tipo: 'saldo', fecha: '2026-10-02', importe: 100 },
+    { id: 'seed-apuesta-2', tipo: 'apuesta', fecha: '2026-10-02', importe: -2100,
+      nota: 'Calculado: tenía 800 €, recibí 1400 € de Moneyman, sin pagos registrados, y me quedan 100 €' },
+  ], patch: { 'seed-moneyman': { repedida: true } } },
 ];
 
 const $ = id => document.getElementById(id);
@@ -416,7 +432,7 @@ const TIPOS = {
 };
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-let deudas = [], apuestas = [];
+let deudas = [], apuestas = [], saldos = [];
 let filtro = 'activas', tipoForm = 'credito', editingId = null, repedirDe = null;
 let store = null;
 
@@ -694,6 +710,13 @@ function renderResumen() {
   const lim = isoOf(new Date(Date.now() + 30 * 864e5));
   const prox = pagos.filter(p => p.fecha <= lim);
   $('s-30-tot').textContent = prox.length ? fmt(prox.reduce((a, p) => a + p.importe, 0)) : '';
+  const sal = saldos[saldos.length - 1];
+  if (sal) {
+    const p30 = prox.reduce((a, p) => a + p.importe, 0);
+    $('s-saldo').textContent = fmt(sal.importe);
+    $('s-saldo').className = 'sum-val ' + (sal.importe >= p30 ? 'green' : 'red');
+    $('s-saldo-sub').textContent = `A ${fmtDate(sal.fecha)} · cubre el ${p30 ? Math.round(sal.importe / p30 * 100) : 100} % de los pagos de los próximos 30 días (${fmt(p30)})`;
+  }
   $('s-30').innerHTML = prox.length
     ? `<div class="list">${prox.map(payRow).join('')}</div>`
     : '<div class="empty">No hay cuotas en los próximos 30 días.</div>';
@@ -936,6 +959,13 @@ async function accion(act, id, el) {
       updatePreview();
       return showView('anadir');
     }
+    case 'saldo': {
+      const v = prompt('Saldo actual en la cuenta (€):', saldos.length ? saldos[saldos.length - 1].importe : '');
+      if (v === null) return;
+      const importe = parseFloat(String(v).replace(',', '.'));
+      if (isNaN(importe)) return alert('Importe no válido');
+      return save(() => store.add({ tipo: 'saldo', fecha: today(), importe: r2(importe), ts: Date.now() }));
+    }
     case 'borrar-apuesta':
       if (!confirm('¿Borrar este movimiento de apuestas?')) return;
       return save(() => store.remove(id));
@@ -1117,8 +1147,9 @@ $('ap-save').onclick = async () => {
 
 // ── Arranque ──
 function onData(list) {
-  deudas = list.filter(d => d.tipo !== 'apuesta');
+  deudas = list.filter(d => d.tipo !== 'apuesta' && d.tipo !== 'saldo');
   apuestas = list.filter(d => d.tipo === 'apuesta');
+  saldos = list.filter(d => d.tipo === 'saldo').sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.ts || 0) - (b.ts || 0));
   render();
   renderApuestas();
   const open = $('modal').dataset.id;
