@@ -457,6 +457,21 @@ const SEEDS = [
     'seed-923': { primera: '2027-01-01', notas: 'Aplazado el 1 nov y el 1 dic; cuota de enero y las dos últimas juntas el 1 feb' },
     'seed-1455': { primera: '2027-02-01', notas: 'Aplazado nov, dic y ene; 3 cuotas feb–abr' },
   } },
+  // Nóminas netas según la previsión del desplazamiento (oct 2026 – oct 2027).
+  { id: 'seed-2026-10r', add: [], patch: {
+    'seed-config': {
+      nomina: [
+        { desde: '2026-10', importe: 2645.44 }, { desde: '2026-11', importe: 3453.01 }, { desde: '2027-01', importe: 3173.56 },
+        { desde: '2027-08', importe: 2280.25 }, { desde: '2027-09', importe: 3173.56 }, { desde: '2027-10', importe: 2490.44 },
+      ],
+      extras: [
+        { fecha: '2026-12-29', importe: 2014.69, txt: 'Paga extra de diciembre' },
+        { fecha: '2027-02-28', importe: 2114.45, txt: 'Variable de febrero' },
+        { fecha: '2027-06-29', importe: 1989.05, txt: 'Paga extra de junio' },
+      ],
+    },
+    'seed-923': { primera: '2026-12-01', notas: 'Aplazado el 1 nov; 3 cuotas dic–feb' },
+  } },
 ];
 
 const $ = id => document.getElementById(id);
@@ -1182,7 +1197,7 @@ $('ap-save').onclick = async () => {
 };
 
 // ── Previsión ──
-const HORIZONTE = 6; // meses
+const HORIZONTE = 13; // meses
 function nominaDe(mes) {
   return [...(config?.nomina || [])].sort((a, b) => a.desde.localeCompare(b.desde)).filter(n => n.desde <= mes).pop()?.importe || 0;
 }
