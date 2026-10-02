@@ -210,6 +210,7 @@ tr.cancel td{color:var(--amber);font-weight:500}
     <button class="nav-btn" data-view="deudas">Deudas</button>
     <button class="nav-btn" data-view="calendario">Calendario</button>
     <button class="nav-btn" data-view="anadir">+ Añadir</button>
+    <button class="nav-btn" data-view="prevision">Previsión</button>
     <button class="nav-btn" data-view="apuestas">Apuestas</button>
   </nav>
 
@@ -274,6 +275,17 @@ tr.cancel td{color:var(--amber);font-weight:500}
   </div>
 
   <!-- AÑADIR / EDITAR -->
+  <!-- PREVISIÓN: saldo futuro si pagas todo a su fecha -->
+  <div id="view-prevision" class="view">
+    <div class="sum-grid">
+      <div class="sum-card"><div class="lbl">Punto más bajo</div><div class="sum-val" id="pv-min">—</div><div class="sum-sub" id="pv-min-sub"></div></div>
+      <div class="sum-card"><div class="lbl">Saldo en 6 meses</div><div class="sum-val" id="pv-fin">—</div><div class="sum-sub" id="pv-fin-sub"></div></div>
+    </div>
+    <div class="panel" id="pv-config"></div>
+    <div class="panel" id="pv-repedir"></div>
+    <div id="pv-list"></div>
+  </div>
+
   <!-- APUESTAS: registro paralelo, no cuenta como deuda -->
   <div id="view-apuestas" class="view">
     <div class="sum-grid">
@@ -427,6 +439,14 @@ const SEEDS = [
     'seed-moneyman-2': { recibido: 1100, notas: 'Pedido el 2 oct 2026: recibo 1100 €, devuelvo 1400 €. Vencimiento supuesto a 30 días' },
     'seed-apuesta-2': { importe: -1800, nota: 'Calculado: tenía 800 €, recibí 1100 € de Moneyman, sin pagos registrados, y me quedan 100 €' },
   } },
+  // Ingresos y gastos para la previsión, y condiciones para volver a pedir.
+  { id: 'seed-2026-10n', add: [
+    { id: 'seed-config', tipo: 'config', diaNomina: 29, gastos: 500, gastosDesde: '2026-11',
+      nomina: [{ desde: '2026-10', importe: 2200 }, { desde: '2026-11', importe: 3200 }] },
+  ], patch: {
+    'seed-moneyman-2': { aplazable: true, repedir: { recibes: 1100, devuelves: 1400 } },
+    'seed-smartcredito': { aplazable: true, repedir: { recibes: 300, devuelves: 435 } },
+  } },
 ];
 
 const $ = id => document.getElementById(id);
@@ -437,7 +457,7 @@ const TIPOS = {
 };
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-let deudas = [], apuestas = [], saldos = [];
+let deudas = [], apuestas = [], saldos = [], config = null;
 let filtro = 'activas', tipoForm = 'credito', editingId = null, repedirDe = null;
 let store = null;
 
@@ -745,6 +765,7 @@ function cardBanco(d, e) {
       <span>💸 Te cuesta ${fmt(e.coste)}</span>
       ${e.saldada ? '' : `<span>💶 ${fmt(e.cuotaActual)}/mes</span>`}
       <span>📈 TIN ${(d.tin || 0).toLocaleString('es-ES')}%</span>
+      ${d.repedir ? `<span>♻️ Volver a pedir: recibes ${fmt(d.repedir.recibes, 0)}, devuelves ${fmt(d.repedir.devuelves, 0)}</span>` : ''}
       <span>🏁 ${e.saldada ? 'Terminado' : 'Fin'}: ${fmtDate(e.fin)}</span>
       ${extrasN ? `<span>⚡ ${extrasN} ${extrasN > 1 ? 'amortizaciones' : 'amortización'} anticipada${extrasN > 1 ? 's' : ''}</span>` : ''}
       ${d.notas ? `<span>📝 ${esc(d.notas)}</span>` : ''}
@@ -1150,13 +1171,59 @@ $('ap-save').onclick = async () => {
   $('ap-imp').value = ''; $('ap-nota').value = '';
 };
 
+// ── Previsión ──
+const HORIZONTE = 6; // meses
+function nominaDe(mes) {
+  return [...(config?.nomina || [])].sort((a, b) => a.desde.localeCompare(b.desde)).filter(n => n.desde <= mes).pop()?.importe || 0;
+}
+function renderPrevision() {
+  const sal = saldos[saldos.length - 1];
+  if (!sal) { $('pv-list').innerHTML = '<div class="empty">Apunta tu saldo en el Resumen para ver la previsión.</div>'; return; }
+  const ini = sal.fecha, fin = addMonths(ini, HORIZONTE), ev = [];
+  for (const p of todosLosPagos()) if (p.fecha <= fin) ev.push({ fecha: p.fecha < ini ? ini : p.fecha, txt: p.d.nombre + (p.n ? ` · cuota ${p.n}` : ''), imp: -p.importe });
+  if (config) {
+    for (let k = 0; k <= HORIZONTE; k++) {
+      const m = addMonths(ini.slice(0, 7) + '-01', k), mes = m.slice(0, 7);
+      const dia = isoOf(new Date(+mes.slice(0, 4), +mes.slice(5) - 1, Math.min(config.diaNomina || 29, new Date(+mes.slice(0, 4), +mes.slice(5), 0).getDate())));
+      if (dia > ini && dia <= fin && nominaDe(mes)) ev.push({ fecha: dia, txt: 'Nómina', imp: nominaDe(mes) });
+      if (config.gastos && mes >= (config.gastosDesde || '') && m > ini && m <= fin) ev.push({ fecha: m, txt: 'Gastos de vida', imp: -config.gastos });
+    }
+  }
+  ev.sort((a, b) => a.fecha.localeCompare(b.fecha) || b.imp - a.imp);
+  let b = sal.importe, min = { v: b, f: ini };
+  const rows = ev.map(e => { b = r2(b + e.imp); if (b < min.v) min = { v: b, f: e.fecha }; return { ...e, saldo: b }; });
+  $('pv-min').textContent = fmt(min.v); $('pv-min').className = 'sum-val ' + (min.v < 0 ? 'red' : 'green');
+  $('pv-min-sub').textContent = min.v < 0 ? `El ${fmtDate(min.f)}: te faltan ${fmt(-min.v)}` : 'Llegas a todo';
+  $('pv-fin').textContent = fmt(b); $('pv-fin').className = 'sum-val ' + (b < 0 ? 'red' : 'green');
+  $('pv-fin-sub').textContent = `A ${fmtDate(fin)}`;
+  $('pv-config').innerHTML = `<h4>Supuestos</h4>
+    <div class="kv"><span>Saldo de partida</span><b>${fmt(sal.importe)} · ${fmtDate(ini)}</b></div>
+    ${(config?.nomina || []).map(n => `<div class="kv"><span>Nómina desde ${monthLabel(n.desde).toLowerCase()} (día ${config.diaNomina})</span><b>${fmt(n.importe)}</b></div>`).join('')}
+    ${config?.gastos ? `<div class="kv"><span>Gastos de vida desde ${monthLabel(config.gastosDesde).toLowerCase()} (día 1)</span><b>${fmt(config.gastos)}/mes</b></div>` : ''}
+    <div class="kv"><span>Préstamos de amigos</span><b>no entran (sin plazo)</b></div>`;
+  const rp = deudas.filter(d => d.aplazable);
+  $('pv-repedir').innerHTML = `<h4>♻️ Se pueden volver a pedir al pagarlos</h4>` + rp.map(d => {
+    const r = d.repedir || { recibes: d.capital, devuelves: d.capital };
+    const coste = r2(r.devuelves - r.recibes);
+    return `<div class="kv"><span>${esc(d.nombre)}</span><b>recibes ${fmt(r.recibes, 0)} → devuelves ${fmt(r.devuelves, 0)}${coste > 0 ? ` <span class="red">(+${fmt(coste, 0)}, ${Math.round(coste / r.recibes * 100)} %)</span>` : ' <span class="green">(gratis)</span>'}</b></div>`;
+  }).join('');
+  const grupos = new Map();
+  rows.forEach(r => { const k = monthKey(r.fecha); if (!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(r); });
+  $('pv-list').innerHTML = [...grupos].map(([k, rs]) => `<div class="sec-hd"><h3>${monthLabel(k)}</h3></div><div class="list">${rs.map(r => `<div class="prow">
+      <div class="pbody"><div class="pname">${esc(r.txt)}</div><div class="pmeta">${fmtDate(r.fecha)}</div></div>
+      <div style="text-align:right"><div class="pamt ${r.imp >= 0 ? 'green' : ''}">${r.imp > 0 ? '+' : ''}${fmt(r.imp)}</div>
+      <div class="pmeta ${r.saldo < 0 ? 'red' : ''}">Saldo ${fmt(r.saldo)}</div></div></div>`).join('')}</div>`).join('');
+}
+
 // ── Arranque ──
 function onData(list) {
-  deudas = list.filter(d => d.tipo !== 'apuesta' && d.tipo !== 'saldo');
+  deudas = list.filter(d => !['apuesta', 'saldo', 'config'].includes(d.tipo));
+  config = list.find(d => d.tipo === 'config') || null;
   apuestas = list.filter(d => d.tipo === 'apuesta');
   saldos = list.filter(d => d.tipo === 'saldo').sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.ts || 0) - (b.ts || 0));
   render();
   renderApuestas();
+  renderPrevision();
   const open = $('modal').dataset.id;
   if (open) openModal(open);
 }
