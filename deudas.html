@@ -422,6 +422,11 @@ const SEEDS = [
     { id: 'seed-apuesta-2', tipo: 'apuesta', fecha: '2026-10-02', importe: -2100,
       nota: 'Calculado: tenía 800 €, recibí 1400 € de Moneyman, sin pagos registrados, y me quedan 100 €' },
   ], patch: { 'seed-moneyman': { repedida: true } } },
+  // Moneyman: me ingresaron 1100 € y devuelvo 1400 €, así que las apuestas del 2 oct son −1800 €, no −2100 €.
+  { id: 'seed-2026-10m', add: [], patch: {
+    'seed-moneyman-2': { recibido: 1100, notas: 'Pedido el 2 oct 2026: recibo 1100 €, devuelvo 1400 €. Vencimiento supuesto a 30 días' },
+    'seed-apuesta-2': { importe: -1800, nota: 'Calculado: tenía 800 €, recibí 1100 € de Moneyman, sin pagos registrados, y me quedan 100 €' },
+  } },
 ];
 
 const $ = id => document.getElementById(id);
