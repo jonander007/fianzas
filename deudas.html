@@ -479,6 +479,10 @@ const SEEDS = [
   ], patch: {
     'seed-txomin': { importe: 2500, notas: '2000 € iniciales + 500 € el 4 oct 2026' },
     'seed-1455': { primera: '2026-12-01', notas: 'Aplazado el 1 nov; 3 cuotas dic–feb' },
+  } },  // Corrección: el saldo del 4 oct era 627 €, no 927 €.
+  { id: 'seed-2026-10t', add: [], patch: {
+    'seed-saldo-3': { importe: 627 },
+    'seed-apuesta-3': { importe: 27, nota: 'Calculado: tenía 100 €, Txomin me prestó 500 €, sin pagos registrados, y tengo 627 €' },
   } },
 ];
 
