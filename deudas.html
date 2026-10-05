@@ -508,6 +508,13 @@ const SEEDS = [
     'seed-vivus': { extras: [{ fecha: '2026-10-05', importe: 986, comision: 0, efecto: 'cancelar' }], notas: 'Liquidado el 5 oct 2026 por 986 € (ahorro de 625 €)' },
     'seed-1455': { primera: '2026-12-01', aplazable: true, notas: 'Aplazable sin coste. Plan: 3 cuotas dic–feb' },
     'seed-2455': { aplazable: true, notas: 'Aplazable sin coste' },
+  } },  // Importes exactos según la app de Santander (5 oct 2026).
+  { id: 'seed-2026-10z', add: [], patch: {
+    'seed-empresa': { capital: 1994.93 },
+    'seed-693-a': { capital: 693.34, entidad: 'Pagolisto *6284' },
+    'seed-923': { capital: 923.61, entidad: 'Pagolisto *6727' },
+    'seed-1455': { capital: 1483.63, entidad: 'Santander *0773' },
+    'seed-2455': { capital: 2326.76, entidad: 'Santander *4475' },
   } },
 ];
 
