@@ -495,7 +495,12 @@ const SEEDS = [
     { id: 'seed-saldo-6', tipo: 'saldo', fecha: '2026-10-05', importe: 1750 },
     { id: 'seed-apuesta-6', tipo: 'apuesta', fecha: '2026-10-05', importe: 750,
       nota: 'Calculado: tenía 1000 €, sin ingresos ni pagos registrados, y tengo 1750 €' },
-  ] },
+  ] },  // Solo Pagolisto se aplaza gratis: Crédito Santander 1 vuelve a su calendario original (nov–ene).
+  { id: 'seed-2026-10x', add: [], patch: {
+    'seed-1455': { primera: '2026-11-01', notas: '3 cuotas nov–ene. Aplazarlo puede tener coste' },
+    'seed-693-a': { notas: 'Aplazable sin intereses. Plan: 3 cuotas dic–feb' },
+    'seed-923': { notas: 'Aplazable sin intereses. Plan: 3 cuotas dic–feb' },
+  } },
 ];
 
 const $ = id => document.getElementById(id);
