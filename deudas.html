@@ -235,9 +235,9 @@ tr.cancel td{color:var(--amber);font-weight:500}
       </div>
     </div>
     <div class="split">
-      <div class="sum-card t-credito"><div class="lbl">🏦 Créditos</div><div class="sum-val" style="color:var(--c)" id="s-credito">€0</div></div>
-      <div class="sum-card t-empresa"><div class="lbl">🏢 Empresa</div><div class="sum-val" style="color:var(--c)" id="s-empresa">€0</div></div>
-      <div class="sum-card t-amigo"><div class="lbl">🤝 Amigos</div><div class="sum-val" style="color:var(--c)" id="s-amigo">€0</div></div>
+      <div class="sum-card t-credito"><div class="lbl">♻️ Aplazables</div><div class="sum-val" style="color:var(--c)" id="s-libre">€0</div><div class="sum-sub" id="s-libre-sub"></div></div>
+      <div class="sum-card t-empresa"><div class="lbl">🔒 Fijos</div><div class="sum-val" style="color:var(--c)" id="s-fijo">€0</div><div class="sum-sub" id="s-fijo-sub"></div></div>
+      <div class="sum-card t-amigo"><div class="lbl">🤝 Amigos</div><div class="sum-val" style="color:var(--c)" id="s-amigo">€0</div><div class="sum-sub" id="s-amigo-sub"></div></div>
     </div>
     <div class="sum-grid">
       <div class="sum-card full">
@@ -248,8 +248,7 @@ tr.cancel td{color:var(--amber);font-weight:500}
       </div>
     </div>
     <div class="sum-grid" id="s-apl-wrap">
-      <div class="sum-card"><div class="lbl">♻️ Aplazables pendientes</div><div class="sum-val" id="s-apl-pend">€0</div><div class="sum-sub" id="s-apl-pend-sub">—</div></div>
-      <div class="sum-card"><div class="lbl">♻️ Se pueden volver a pedir</div><div class="sum-val green" id="s-apl-disp">€0</div><div class="sum-sub" id="s-apl-disp-sub">—</div></div>
+      <div class="sum-card full"><div class="lbl">♻️ Se pueden volver a pedir</div><div class="sum-val green" id="s-apl-disp">€0</div><div class="sum-sub" id="s-apl-disp-sub">—</div></div>
     </div>
     <div class="sec-hd"><h3>Próximos 30 días</h3><span class="tot" id="s-30-tot"></span></div>
     <div id="s-30"></div>
@@ -764,23 +763,25 @@ function payRow(p) {
 
 function renderResumen() {
   const est = deudas.map(d => ({ d, e: estado(d) }));
-  const porTipo = { credito: 0, empresa: 0, amigo: 0 };
-  est.forEach(({ d, e }) => porTipo[d.tipo] += e.pendiente);
-  const total = porTipo.credito + porTipo.empresa + porTipo.amigo;
+  // Bloques: aplazables sin coste, fijos (no aplazables o caros de volver a pedir) y amigos.
+  const bloque = d => d.tipo === 'amigo' ? 'amigo'
+    : d.aplazable && !(d.repedir && d.repedir.devuelves > d.repedir.recibes) ? 'libre' : 'fijo';
+  const BLOQUES = { libre: 'credito', fijo: 'empresa', amigo: 'amigo' }; // bloque → color
+  const porBloque = { libre: 0, fijo: 0, amigo: 0 }, nombres = { libre: [], fijo: [], amigo: [] };
+  est.forEach(({ d, e }) => { if (e.pendiente > 0) { porBloque[bloque(d)] += e.pendiente; nombres[bloque(d)].push(d.tipo === 'amigo' ? d.persona : d.nombre); } });
+  const total = porBloque.libre + porBloque.fijo + porBloque.amigo;
   const activas = est.filter(x => !x.e.saldada);
   const coste = activas.filter(x => x.d.tipo !== 'amigo').reduce((a, x) => a + x.e.coste, 0);
   $('s-total').textContent = fmt(total);
   $('s-total-sub').textContent = activas.length
     ? `${activas.length} deuda${activas.length > 1 ? 's' : ''} activa${activas.length > 1 ? 's' : ''}${coste > 0 ? ` · los préstamos te cuestan ${fmt(coste)} en total` : ''}`
     : 'Sin deudas activas 🎉';
-  $('s-mix').innerHTML = total ? ['credito', 'empresa', 'amigo'].map(t =>
-    porTipo[t] ? `<div class="t-${t}" style="width:${porTipo[t] / total * 100}%;background:var(--c)" title="${TIPOS[t].label}: ${fmt(porTipo[t])}"></div>` : '').join('') : '';
-  for (const t in porTipo) $('s-' + t).textContent = fmt(porTipo[t], 0);
+  $('s-mix').innerHTML = total ? Object.keys(porBloque).map(k =>
+    porBloque[k] ? `<div class="t-${BLOQUES[k]}" style="width:${porBloque[k] / total * 100}%;background:var(--c)" title="${fmt(porBloque[k])}"></div>` : '').join('') : '';
+  for (const k in porBloque) { $('s-' + k).textContent = fmt(porBloque[k], 0); $('s-' + k + '-sub').textContent = nombres[k].join(', '); }
   const apl = est.filter(x => x.d.aplazable);
-  const aplPend = apl.filter(x => !x.e.saldada), aplDisp = apl.filter(x => x.e.saldada && !x.d.repedida);
+  const aplDisp = apl.filter(x => x.e.saldada && !x.d.repedida);
   $('s-apl-wrap').style.display = apl.length ? '' : 'none';
-  $('s-apl-pend').textContent = fmt(aplPend.reduce((a, x) => a + x.e.porPagar, 0));
-  $('s-apl-pend-sub').textContent = aplPend.length ? aplPend.map(x => x.d.nombre).join(', ') : 'Ninguna';
   $('s-apl-disp').textContent = fmt(aplDisp.reduce((a, x) => a + x.e.recibido, 0));
   $('s-apl-disp-sub').textContent = aplDisp.length ? aplDisp.map(x => x.d.nombre).join(', ') : 'Paga una para liberarla';
 
