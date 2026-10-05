@@ -500,6 +500,15 @@ const SEEDS = [
     'seed-1455': { primera: '2026-11-01', notas: '3 cuotas nov–ene. Aplazarlo puede tener coste' },
     'seed-693-a': { notas: 'Aplazable sin intereses. Plan: 3 cuotas dic–feb' },
     'seed-923': { notas: 'Aplazable sin intereses. Plan: 3 cuotas dic–feb' },
+  } },  // 5 oct: Vivus liquidado por 986 € (en lugar de 3 × 537 €). Todo se aplaza gratis salvo Santander y Moneyman.
+  { id: 'seed-2026-10y', add: [
+    { id: 'seed-saldo-7', tipo: 'saldo', fecha: '2026-10-05', importe: 670 },
+    { id: 'seed-apuesta-7', tipo: 'apuesta', fecha: '2026-10-05', importe: -94,
+      nota: 'Calculado: tenía 1750 €, pagué Vivus 986 € y tengo 670 €' },
+  ], patch: {
+    'seed-vivus': { extras: [{ fecha: '2026-10-05', importe: 986, comision: 0, efecto: 'cancelar' }], notas: 'Liquidado el 5 oct 2026 por 986 € (ahorro de 625 €)' },
+    'seed-1455': { primera: '2026-12-01', aplazable: true, notas: 'Aplazable sin coste. Plan: 3 cuotas dic–feb' },
+    'seed-2455': { aplazable: true, notas: 'Aplazable sin coste' },
   } },
 ];
 
@@ -816,7 +825,7 @@ function cardBanco(d, e) {
     </div>
     <div class="meta">
       <span>💰 Te dieron ${fmt(e.recibido)}</span>
-      <span>💸 Te cuesta ${fmt(e.coste)}</span>
+      <span>${e.coste < 0 ? `💚 Ahorraste ${fmt(-e.coste)}` : `💸 Te cuesta ${fmt(e.coste)}`}</span>
       ${e.saldada ? '' : `<span>💶 ${fmt(e.cuotaActual)}/mes</span>`}
       <span>📈 TIN ${(d.tin || 0).toLocaleString('es-ES')}%</span>
       ${d.repedir ? `<span>♻️ Volver a pedir: recibes ${fmt(d.repedir.recibes, 0)}, devuelves ${fmt(d.repedir.devuelves, 0)}</span>` : ''}
