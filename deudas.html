@@ -508,7 +508,11 @@ const SEEDS = [
   { id: 'seed-2026-10-13b', add: [
     { id: 'seed-saldo-8', tipo: 'saldo', fecha: '2026-10-13', importe: 600 },
   ], remove: ['seed-apuesta-1', 'seed-apuesta-2', 'seed-apuesta-3', 'seed-apuesta-4', 'seed-apuesta-5', 'seed-apuesta-6', 'seed-apuesta-7'],
-  patch: { 'seed-smartcredito': { primera: '2026-12-01', notas: 'Aplazado sin coste del 14 oct al 1 dic' } } },
+  patch: { 'seed-smartcredito': { primera: '2026-12-01', notas: 'Aplazado sin coste del 14 oct al 1 dic' } } },  // Prioridad: devolver a Ama cuanto antes (29 nov, con la nómina). Smartcredito pasa al 1 ene para dejar margen.
+  { id: 'seed-2026-10-13c', add: [], patch: {
+    'seed-ama': { notas: 'Prioridad: devolver el 29 nov con la nómina' },
+    'seed-smartcredito': { primera: '2027-01-01', notas: 'Aplazado sin coste al 1 ene (para devolver antes a Ama)' },
+  } },
 ];
 
 const $ = id => document.getElementById(id);
