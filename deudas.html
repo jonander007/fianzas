@@ -211,7 +211,6 @@ tr.cancel td{color:var(--amber);font-weight:500}
     <button class="nav-btn" data-view="calendario">Calendario</button>
     <button class="nav-btn" data-view="anadir">+ Añadir</button>
     <button class="nav-btn" data-view="prevision">Previsión</button>
-    <button class="nav-btn" data-view="apuestas">Apuestas</button>
   </nav>
 
   <!-- RESUMEN -->
@@ -283,27 +282,6 @@ tr.cancel td{color:var(--amber);font-weight:500}
     <div class="panel" id="pv-config"></div>
     <div class="panel" id="pv-repedir"></div>
     <div id="pv-list"></div>
-  </div>
-
-  <!-- APUESTAS: registro paralelo, no cuenta como deuda -->
-  <div id="view-apuestas" class="view">
-    <div class="sum-grid">
-      <div class="sum-card full">
-        <div class="lbl">Resultado neto de apuestas</div>
-        <div class="sum-val big" id="ap-total">€0</div>
-        <div class="sum-sub" id="ap-sub">—</div>
-      </div>
-    </div>
-    <div class="form-card">
-      <div class="row2">
-        <div class="field"><label>Importe (€)</label><input id="ap-imp" type="number" inputmode="decimal" step="0.01" placeholder="+ ganado / − perdido"></div>
-        <div class="field"><label>Fecha</label><input id="ap-fecha" type="date"></div>
-      </div>
-      <div class="field"><label>Nota — opcional</label><input id="ap-nota" type="text" placeholder="Partido, casa de apuestas..."></div>
-      <button class="btn-sub" id="ap-save">Añadir movimiento</button>
-    </div>
-    <div class="sec-hd"><h3>Movimientos</h3></div>
-    <div id="ap-list"></div>
   </div>
 
   <div id="view-anadir" class="view">
@@ -525,6 +503,12 @@ const SEEDS = [
     'seed-joserra': { importe: 400, notas: '200 € iniciales + 200 € el 13 oct 2026' },
     'seed-sergio': { importe: 1700, notas: '1500 € iniciales + 200 € el 13 oct 2026' },
   } },
+  // 13 oct: se borra el registro de apuestas (las diferencias eran otros gastos). Saldo 600 €.
+  // Smartcredito se aplaza sin coste al 1 dic.
+  { id: 'seed-2026-10-13b', add: [
+    { id: 'seed-saldo-8', tipo: 'saldo', fecha: '2026-10-13', importe: 600 },
+  ], remove: ['seed-apuesta-1', 'seed-apuesta-2', 'seed-apuesta-3', 'seed-apuesta-4', 'seed-apuesta-5', 'seed-apuesta-6', 'seed-apuesta-7'],
+  patch: { 'seed-smartcredito': { primera: '2026-12-01', notas: 'Aplazado sin coste del 14 oct al 1 dic' } } },
 ];
 
 const $ = id => document.getElementById(id);
@@ -535,7 +519,7 @@ const TIPOS = {
 };
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-let deudas = [], apuestas = [], saldos = [], config = null;
+let deudas = [], saldos = [], config = null;
 let filtro = 'activas', tipoForm = 'credito', editingId = null, repedirDe = null;
 let store = null;
 
@@ -1072,9 +1056,6 @@ async function accion(act, id, el) {
       if (isNaN(importe)) return alert('Importe no válido');
       return save(() => store.add({ tipo: 'saldo', fecha: today(), importe: r2(importe), ts: Date.now() }));
     }
-    case 'borrar-apuesta':
-      if (!confirm('¿Borrar este movimiento de apuestas?')) return;
-      return save(() => store.remove(id));
     case 'borrar':
       if (!confirm(`¿Eliminar «${d.nombre}»? No se puede deshacer.`)) return;
       closeModal();
@@ -1227,30 +1208,6 @@ $('btn-save').onclick = async () => {
   showView('deudas');
 };
 
-// ── Apuestas ──
-function renderApuestas() {
-  const list = [...apuestas].sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.ts || 0) - (b.ts || 0));
-  let acc = 0;
-  const rows = list.map(a => ({ ...a, acc: acc = r2(acc + a.importe) })).reverse();
-  $('ap-total').textContent = (acc > 0 ? '+' : '') + fmt(acc);
-  $('ap-total').className = 'sum-val big ' + (acc >= 0 ? 'green' : 'red');
-  const gan = list.filter(a => a.importe > 0).reduce((s, a) => s + a.importe, 0);
-  const per = list.filter(a => a.importe < 0).reduce((s, a) => s + a.importe, 0);
-  $('ap-sub').textContent = list.length ? `${list.length} movimiento${list.length > 1 ? 's' : ''} · ganado ${fmt(gan)} · perdido ${fmt(-per)}` : 'Sin movimientos';
-  $('ap-list').innerHTML = rows.length ? `<div class="list">${rows.map(a => `<div class="prow">
-      <div class="pbody"><div class="pname">${fmtDate(a.fecha)}</div>${a.nota ? `<div class="pmeta">${esc(a.nota)}</div>` : ''}<div class="pmeta">Acumulado: ${fmt(a.acc)}</div></div>
-      <div class="pamt ${a.importe >= 0 ? 'green' : 'red'}">${a.importe > 0 ? '+' : ''}${fmt(a.importe)}</div>
-      <button class="mini-del" title="Borrar" data-act="borrar-apuesta" data-id="${a.id}">×</button></div>`).join('')}</div>`
-    : '<div class="empty">Sin movimientos.</div>';
-}
-$('ap-fecha').value = today();
-$('ap-save').onclick = async () => {
-  const importe = num('ap-imp'), fecha = $('ap-fecha').value;
-  if (!importe || !fecha) return alert('Indica importe (positivo si ganas, negativo si pierdes) y fecha');
-  await save(() => store.add({ tipo: 'apuesta', fecha, importe: r2(importe), nota: $('ap-nota').value.trim(), ts: Date.now() }));
-  $('ap-imp').value = ''; $('ap-nota').value = '';
-};
-
 // ── Previsión ──
 const HORIZONTE = 13; // meses
 function nominaDe(mes) {
@@ -1301,10 +1258,8 @@ function renderPrevision() {
 function onData(list) {
   deudas = list.filter(d => !['apuesta', 'saldo', 'config'].includes(d.tipo));
   config = list.find(d => d.tipo === 'config') || null;
-  apuestas = list.filter(d => d.tipo === 'apuesta');
   saldos = list.filter(d => d.tipo === 'saldo').sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.ts || 0) - (b.ts || 0));
   render();
-  renderApuestas();
   renderPrevision();
   const open = $('modal').dataset.id;
   if (open) openModal(open);
