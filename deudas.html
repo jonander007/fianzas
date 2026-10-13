@@ -520,6 +520,14 @@ const SEEDS = [
     'seed-693-a': { primera: '2027-01-01', notas: 'Aplazable sin coste. Plan: 3 cuotas ene–mar' },
     'seed-923': { primera: '2027-01-01', notas: 'Aplazable sin coste. Plan: 3 cuotas ene–mar' },
     'seed-1455': { primera: '2027-01-01', notas: 'Aplazable sin coste. Plan: 3 cuotas ene–mar' },
+  } },  // Vivus no se aplaza y Smartcredito se paga ya. Los aplazables se pagan y se vuelven a pedir sin intereses.
+  { id: 'seed-2026-10-13e', add: [], patch: {
+    'seed-smartcredito': { primera: '2026-10-13', aplazable: false, notas: 'Pagar hoy (13 oct). Volver a pedirlo cuesta: recibes 300 €, devuelves 435 €' },
+    'seed-vivus-2': { primera: '2026-11-01', aplazable: false, notas: 'No aplazable. Plan: cuota del 1 nov y liquidar el resto el 29 nov (total 1500 €, ahorro 648 €)' },
+    'seed-693-a': { notas: 'Aplazable: en nov y dic se paga la cuota y se vuelve a pedir sin intereses; 3 cuotas ene–mar' },
+    'seed-923': { notas: 'Aplazable: en nov y dic se paga la cuota y se vuelve a pedir sin intereses; 3 cuotas ene–mar' },
+    'seed-1455': { notas: 'Aplazable: en nov y dic se paga la cuota y se vuelve a pedir sin intereses; 3 cuotas ene–mar' },
+    'seed-ama': { notas: 'Plan: devolver el 1 nov con lo que vuelvo a pedir a Moneyman' },
   } },
 ];
 
