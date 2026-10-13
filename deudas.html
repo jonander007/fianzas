@@ -515,6 +515,15 @@ const SEEDS = [
     'seed-923': { capital: 923.61, entidad: 'Pagolisto *6727' },
     'seed-1455': { capital: 1483.63, entidad: 'Santander *0773' },
     'seed-2455': { capital: 2326.76, entidad: 'Santander *4475' },
+  } },  // 13 oct: nuevo Vivus y más préstamos de amigos.
+  { id: 'seed-2026-10-13a', add: [
+    { id: 'seed-vivus-2', tipo: 'credito', nombre: 'Vivus', entidad: 'Vivus', capital: 2148, recibido: 0, tin: 0,
+      plazo: 4, primera: '2026-11-01', cuota: 537, pagadas: 0, extras: [], notas: 'Pedido en oct 2026: 4 cuotas de 537 € desde el 1 nov' },
+    { id: 'seed-xabi', tipo: 'amigo', nombre: 'Préstamo de Xabi', persona: 'Xabi', importe: 300, fecha: '2026-10-13', abonos: [], notas: '' },
+    { id: 'seed-ama', tipo: 'amigo', nombre: 'Préstamo de Ama', persona: 'Ama', importe: 600, fecha: '2026-10-13', abonos: [], notas: '' },
+  ], patch: {
+    'seed-joserra': { importe: 400, notas: '200 € iniciales + 200 € el 13 oct 2026' },
+    'seed-sergio': { importe: 1700, notas: '1500 € iniciales + 200 € el 13 oct 2026' },
   } },
 ];
 
