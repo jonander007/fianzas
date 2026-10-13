@@ -512,6 +512,14 @@ const SEEDS = [
   { id: 'seed-2026-10-13c', add: [], patch: {
     'seed-ama': { notas: 'Prioridad: devolver el 29 nov con la nómina' },
     'seed-smartcredito': { primera: '2027-01-01', notas: 'Aplazado sin coste al 1 ene (para devolver antes a Ama)' },
+  } },  // Plan: 1 nov pago Moneyman y lo vuelvo a pedir (1100 €) para pagar a Ama; 29 nov liquido Vivus por 1500 €.
+  { id: 'seed-2026-10-13d', add: [], patch: {
+    'seed-ama': { notas: 'Plan: devolver el 1 nov con lo que vuelvo a pedir a Moneyman' },
+    'seed-vivus-2': { primera: '2026-12-01', aplazable: true, notas: 'Plan: aplazar la cuota de nov y liquidar todo el 29 nov por 1500 € (ahorro 648 €)' },
+    'seed-moneyman-2': { notas: 'Plan: pagar el 1 nov y volver a pedir 1100 € (devolver 1400 € el 1 dic)' },
+    'seed-693-a': { primera: '2027-01-01', notas: 'Aplazable sin coste. Plan: 3 cuotas ene–mar' },
+    'seed-923': { primera: '2027-01-01', notas: 'Aplazable sin coste. Plan: 3 cuotas ene–mar' },
+    'seed-1455': { primera: '2027-01-01', notas: 'Aplazable sin coste. Plan: 3 cuotas ene–mar' },
   } },
 ];
 
