@@ -528,6 +528,21 @@ const SEEDS = [
     'seed-923': { notas: 'Aplazable: en nov y dic se paga la cuota y se vuelve a pedir sin intereses; 3 cuotas ene–mar' },
     'seed-1455': { notas: 'Aplazable: en nov y dic se paga la cuota y se vuelve a pedir sin intereses; 3 cuotas ene–mar' },
     'seed-ama': { notas: 'Plan: devolver el 1 nov con lo que vuelvo a pedir a Moneyman' },
+  } },  // 17 oct: saldo 600 €, nómina de octubre 3100 €, Smartcredito vence el 14 nov. Plan sin préstamos puente.
+  { id: 'seed-2026-10-17a', add: [
+    { id: 'seed-saldo-9', tipo: 'saldo', fecha: '2026-10-17', importe: 600 },
+  ], patch: {
+    'seed-config': { nomina: [
+      { desde: '2026-10', importe: 3100 }, { desde: '2026-11', importe: 3453.01 }, { desde: '2027-01', importe: 3173.56 },
+      { desde: '2027-08', importe: 2280.25 }, { desde: '2027-09', importe: 3173.56 }, { desde: '2027-10', importe: 2490.44 },
+    ] },
+    'seed-smartcredito': { primera: '2026-11-14', notas: 'Pago único el 14 nov 2026' },
+    'seed-moneyman-2': { notas: 'Pagar el 1 nov sin volver a pedirlo' },
+    'seed-ama': { notas: 'Plan: devolver el 29 nov con la nómina' },
+    'seed-joserra': { notas: 'Plan: devolver antes de fin de año (29 dic)' },
+    'seed-693-a': { primera: '2026-12-01', notas: 'Aplazable: en nov se paga la cuota y se vuelve a pedir; 3 cuotas dic–feb' },
+    'seed-923': { primera: '2026-12-01', notas: 'Aplazable: en nov se paga la cuota y se vuelve a pedir; 3 cuotas dic–feb' },
+    'seed-1455': { primera: '2026-12-01', notas: 'Aplazable: en nov se paga la cuota y se vuelve a pedir; 3 cuotas dic–feb' },
   } },
 ];
 
