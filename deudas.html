@@ -233,6 +233,10 @@ tr.cancel td{color:var(--amber);font-weight:500}
         <div class="sum-sub" id="s-venc-sub">—</div>
       </div>
     </div>
+    <div class="sum-grid" id="s-fondo-wrap">
+      <div class="sum-card full"><div class="lbl">🏦 Cuotas mensuales Santander · fuera del total</div>
+        <div class="sum-val" id="s-fondo">€0</div><div class="sum-sub" id="s-fondo-sub"></div></div>
+    </div>
     <div class="split">
       <div class="sum-card t-credito"><div class="lbl">♻️ Aplazables</div><div class="sum-val" style="color:var(--c)" id="s-libre">€0</div><div class="sum-sub" id="s-libre-sub"></div></div>
       <div class="sum-card t-empresa"><div class="lbl">🔒 Fijos</div><div class="sum-val" style="color:var(--c)" id="s-fijo">€0</div><div class="sum-sub" id="s-fijo-sub"></div></div>
@@ -547,6 +551,10 @@ const SEEDS = [
   { id: 'seed-2026-10-17b', add: [], patch: {
     'seed-ama': { importe: 800, notas: 'Fundamental: devolver el 29 oct con la nómina' },
     'seed-2455': { notas: 'Aplazable. Plan: en nov se paga la cuota y se vuelve a pedir' },
+  } },  // Préstamo Santander y Crédito Santander 2: solo cuotas de ~100 €/mes, fuera de la deuda total y de la fecha de fin.
+  { id: 'seed-2026-10-17c', add: [], patch: {
+    'seed-empresa': { fondo: true, notas: '96 €/mes. Fuera del total: ya se decidirá si amortizar antes' },
+    'seed-2455': { fondo: true, aplazable: false, cuota: 100, plazo: 24, notas: '100 €/mes. Fuera del total: ya se decidirá si amortizar antes' },
   } },
 ];
 
@@ -801,7 +809,12 @@ function payRow(p) {
 }
 
 function renderResumen() {
-  const est = deudas.map(d => ({ d, e: estado(d) }));
+  // Las cuotas mensuales de fondo (Santander) no cuentan en la deuda total.
+  const est = deudas.filter(d => !d.fondo).map(d => ({ d, e: estado(d) }));
+  const fondo = deudas.filter(d => d.fondo).map(d => ({ d, e: estado(d) })).filter(x => !x.e.saldada);
+  $('s-fondo-wrap').style.display = fondo.length ? '' : 'none';
+  $('s-fondo').textContent = fmt(fondo.reduce((a, x) => a + (x.e.plan[0]?.importe || 0), 0)) + '/mes';
+  $('s-fondo-sub').textContent = fondo.map(x => `${x.d.nombre} ${fmt(x.e.plan[0]?.importe || 0)} (quedan ${fmt(x.e.pendiente, 0)})`).join(' · ');
   // Bloques: aplazables sin coste, fijos (no aplazables o caros de volver a pedir) y amigos.
   const bloque = d => d.tipo === 'amigo' ? 'amigo'
     : d.aplazable && !(d.repedir && d.repedir.devuelves > d.repedir.recibes) ? 'libre' : 'fijo';
@@ -859,7 +872,7 @@ function cardBanco(d, e) {
   return `<div class="card t-${d.tipo}">
     <div class="card-hd">
       <div>
-        <div class="card-title">${TIPOS[d.tipo].icon} ${esc(d.nombre)} <span class="badge">${TIPOS[d.tipo].label}</span>${d.aplazable ? '<span class="tag tag-green">♻️ Aplazable</span>' : ''}${estadoTag}</div>
+        <div class="card-title">${TIPOS[d.tipo].icon} ${esc(d.nombre)} <span class="badge">${TIPOS[d.tipo].label}</span>${d.fondo ? '<span class="tag tag-amber">Cuota mensual · fuera del total</span>' : d.aplazable ? '<span class="tag tag-green">♻️ Aplazable</span>' : ''}${estadoTag}</div>
         ${d.entidad ? `<div class="card-sub">${esc(d.entidad)}</div>` : ''}
       </div>
     </div>
