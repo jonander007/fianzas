@@ -1,0 +1,705 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><script>window.__PLAN_INICIAL__ = {"deudas": [{"bloque": "fijo", "id": "moneyman", "nombre": "Moneyman", "notas": "Pago único el 1 nov. Volver a pedirlo: recibes 1.100 €, devuelves 1.400 € (coste 300 €).", "pendiente": 1400}, {"bloque": "fijo", "id": "moneyman2", "nombre": "Moneyman (vuelto a pedir)", "notas": "Nace el 1 nov si se vuelve a pedir: recibes 1.100 €, devuelves 1.400 € el 1 dic.", "pendiente": 0}, {"bloque": "fijo", "id": "vivus", "nombre": "Vivus", "notas": "4 × 537 € desde el 1 nov, no aplazable. Plan: cuota del 1 nov y liquidar el resto el 29 nov (~963 €; total 1.500 €, ahorro 648 €).", "pendiente": 2148}, {"bloque": "fijo", "id": "smartcredito", "nombre": "Smartcredito", "notas": "Pago único el 14 nov. Volver a pedirlo: recibes 300 €, devuelves 435 € (coste 135 €).", "pendiente": 435}, {"bloque": "aplazable", "id": "pagolisto1", "nombre": "Pagolisto 1 (*6284)", "notas": "Aplazable: se paga la cuota y se vuelve a pedir el mismo día sin intereses. Plan: 3 cuotas ene–mar.", "pendiente": 693.34}, {"bloque": "aplazable", "id": "pagolisto2", "nombre": "Pagolisto 2 (*6727)", "notas": "Aplazable sin intereses. Plan: 3 cuotas ene–mar.", "pendiente": 923.61}, {"bloque": "aplazable", "id": "credsan1", "nombre": "Crédito Santander 1 (*0773)", "notas": "Aplazable sin intereses. Plan: 3 cuotas ene–mar.", "pendiente": 1483.63}, {"bloque": "amigo", "id": "ama", "nombre": "Ama", "notas": "Fundamental pagarlo en octubre (29 oct, con la nómina).", "pendiente": 800}, {"bloque": "amigo", "id": "joserra", "nombre": "Joserra", "notas": "Sin plazo ni interés. Antes de fin de año.", "pendiente": 400}, {"bloque": "amigo", "id": "xabi", "nombre": "Xabi", "notas": "Sin plazo ni interés.", "pendiente": 300}, {"bloque": "amigo", "id": "sergio", "nombre": "Sergio", "notas": "Sin plazo ni interés.", "pendiente": 1700}, {"bloque": "amigo", "id": "txomin", "nombre": "Txomin", "notas": "Sin plazo ni interés.", "pendiente": 2500}, {"bloque": "santander", "id": "santander", "nombre": "Santander (préstamo)", "notas": "96 €/mes. Fuera de la deuda total: más adelante se decide si amortizar.", "pendiente": 1994.93}, {"bloque": "santander", "id": "credsan2", "nombre": "Crédito Santander 2 (*4475)", "notas": "100 €/mes. Fuera de la deuda total: más adelante se decide si amortizar.", "pendiente": 2326.76}], "gastosMes": 700, "movimientos": [{"c": "Gastos de vida hasta la nómina (estimado)", "d": "", "estado": "previsto", "f": "2026-10-20", "i": -300, "id": "m01", "t": "gasto"}, {"c": "Nómina de octubre", "d": "", "estado": "previsto", "f": "2026-10-29", "i": 3100, "id": "m02", "t": "ingreso"}, {"c": "Devolución a Ama", "d": "ama", "estado": "previsto", "f": "2026-10-29", "i": -800, "id": "m03", "t": "pago"}, {"c": "Moneyman · vuelvo a pedir (recibo 1.100 €, devuelvo 1.400 €)", "d": "moneyman2", "debe": 1400, "estado": "previsto", "f": "2026-11-01", "i": 1100, "id": "m05", "t": "prestamo"}, {"c": "Moneyman · pago", "d": "moneyman", "estado": "previsto", "f": "2026-11-01", "i": -1400, "id": "m04", "t": "pago"}, {"c": "Vivus · cuota 1/4", "d": "vivus", "estado": "previsto", "f": "2026-11-01", "i": -537, "id": "m06", "t": "pago"}, {"c": "Pagolisto 1 · pago la cuota (231,11 €) y la vuelvo a pedir", "d": "pagolisto1", "estado": "previsto", "f": "2026-11-01", "i": 0, "id": "m07", "t": "aplazado"}, {"c": "Pagolisto 2 · pago la cuota (307,87 €) y la vuelvo a pedir", "d": "pagolisto2", "estado": "previsto", "f": "2026-11-01", "i": 0, "id": "m09", "t": "aplazado"}, {"c": "Crédito Santander 1 · pago la cuota (494,54 €) y la vuelvo a pedir", "d": "credsan1", "estado": "previsto", "f": "2026-11-01", "i": 0, "id": "m11", "t": "aplazado"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2026-11-01", "i": -700, "id": "m44", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2026-11-01", "i": -96, "id": "m45", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2026-11-01", "i": -100, "id": "m46", "t": "pago"}, {"c": "Smartcredito · pago único", "d": "smartcredito", "estado": "previsto", "f": "2026-11-14", "i": -435, "id": "m13", "t": "pago"}, {"c": "Nómina de noviembre", "d": "", "estado": "previsto", "f": "2026-11-29", "i": 3453.01, "id": "m14", "t": "ingreso"}, {"c": "Vivus · liquidación del resto (estimado)", "cierra": true, "d": "vivus", "estado": "previsto", "f": "2026-11-29", "i": -963, "id": "m15", "t": "pago"}, {"c": "Pagolisto 1 · pago la cuota (231,11 €) y la vuelvo a pedir", "d": "pagolisto1", "estado": "previsto", "f": "2026-12-01", "i": 0, "id": "m08", "t": "aplazado"}, {"c": "Pagolisto 2 · pago la cuota (307,87 €) y la vuelvo a pedir", "d": "pagolisto2", "estado": "previsto", "f": "2026-12-01", "i": 0, "id": "m10", "t": "aplazado"}, {"c": "Crédito Santander 1 · pago la cuota (494,54 €) y la vuelvo a pedir", "d": "credsan1", "estado": "previsto", "f": "2026-12-01", "i": 0, "id": "m12", "t": "aplazado"}, {"c": "Moneyman · devolución del préstamo renovado", "d": "moneyman2", "estado": "previsto", "f": "2026-12-01", "i": -1400, "id": "m16", "t": "pago"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2026-12-01", "i": -700, "id": "m47", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2026-12-01", "i": -96, "id": "m48", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2026-12-01", "i": -100, "id": "m49", "t": "pago"}, {"c": "Nómina de diciembre", "d": "", "estado": "previsto", "f": "2026-12-29", "i": 3453.01, "id": "m17", "t": "ingreso"}, {"c": "Paga extra de diciembre", "d": "", "estado": "previsto", "f": "2026-12-29", "i": 2014.69, "id": "m18", "t": "ingreso"}, {"c": "Devolución a Joserra", "d": "joserra", "estado": "previsto", "f": "2026-12-29", "i": -400, "id": "m19", "t": "pago"}, {"c": "Pagolisto 1 · cuota 1/3", "d": "pagolisto1", "estado": "previsto", "f": "2027-01-01", "i": -231.11, "id": "m20", "t": "pago"}, {"c": "Pagolisto 2 · cuota 1/3", "d": "pagolisto2", "estado": "previsto", "f": "2027-01-01", "i": -307.87, "id": "m21", "t": "pago"}, {"c": "Crédito Santander 1 · cuota 1/3", "d": "credsan1", "estado": "previsto", "f": "2027-01-01", "i": -494.54, "id": "m22", "t": "pago"}, {"c": "Devolución a Xabi", "d": "xabi", "estado": "previsto", "f": "2027-01-01", "i": -300, "id": "m29", "t": "pago"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2027-01-01", "i": -700, "id": "m50", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2027-01-01", "i": -96, "id": "m51", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2027-01-01", "i": -100, "id": "m52", "t": "pago"}, {"c": "Nómina de enero", "d": "", "estado": "previsto", "f": "2027-01-29", "i": 3173.56, "id": "m33", "t": "ingreso"}, {"c": "Pagolisto 1 · cuota 2/3", "d": "pagolisto1", "estado": "previsto", "f": "2027-02-01", "i": -231.11, "id": "m23", "t": "pago"}, {"c": "Pagolisto 2 · cuota 2/3", "d": "pagolisto2", "estado": "previsto", "f": "2027-02-01", "i": -307.87, "id": "m24", "t": "pago"}, {"c": "Crédito Santander 1 · cuota 2/3", "d": "credsan1", "estado": "previsto", "f": "2027-02-01", "i": -494.54, "id": "m25", "t": "pago"}, {"c": "Devolución a Sergio", "d": "sergio", "estado": "previsto", "f": "2027-02-01", "i": -1700, "id": "m30", "t": "pago"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2027-02-01", "i": -700, "id": "m53", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2027-02-01", "i": -96, "id": "m54", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2027-02-01", "i": -100, "id": "m55", "t": "pago"}, {"c": "Variable de febrero", "d": "", "estado": "previsto", "f": "2027-02-28", "i": 2114.45, "id": "m31", "t": "ingreso"}, {"c": "Nómina de febrero", "d": "", "estado": "previsto", "f": "2027-02-28", "i": 3173.56, "id": "m34", "t": "ingreso"}, {"c": "Devolución a Txomin", "d": "txomin", "estado": "previsto", "f": "2027-02-28", "i": -2500, "id": "m32", "t": "pago"}, {"c": "Pagolisto 1 · cuota 3/3", "d": "pagolisto1", "estado": "previsto", "f": "2027-03-01", "i": -231.12, "id": "m26", "t": "pago"}, {"c": "Pagolisto 2 · cuota 3/3", "d": "pagolisto2", "estado": "previsto", "f": "2027-03-01", "i": -307.87, "id": "m27", "t": "pago"}, {"c": "Crédito Santander 1 · cuota 3/3", "d": "credsan1", "estado": "previsto", "f": "2027-03-01", "i": -494.55, "id": "m28", "t": "pago"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2027-03-01", "i": -700, "id": "m56", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2027-03-01", "i": -96, "id": "m57", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2027-03-01", "i": -100, "id": "m58", "t": "pago"}, {"c": "Nómina de marzo", "d": "", "estado": "previsto", "f": "2027-03-29", "i": 3173.56, "id": "m35", "t": "ingreso"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2027-04-01", "i": -700, "id": "m59", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2027-04-01", "i": -96, "id": "m60", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2027-04-01", "i": -100, "id": "m61", "t": "pago"}, {"c": "Nómina de abril", "d": "", "estado": "previsto", "f": "2027-04-29", "i": 3173.56, "id": "m36", "t": "ingreso"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2027-05-01", "i": -700, "id": "m62", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2027-05-01", "i": -96, "id": "m63", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2027-05-01", "i": -100, "id": "m64", "t": "pago"}, {"c": "Nómina de mayo", "d": "", "estado": "previsto", "f": "2027-05-29", "i": 3173.56, "id": "m37", "t": "ingreso"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2027-06-01", "i": -700, "id": "m65", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2027-06-01", "i": -96, "id": "m66", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2027-06-01", "i": -100, "id": "m67", "t": "pago"}, {"c": "Nómina de junio", "d": "", "estado": "previsto", "f": "2027-06-29", "i": 3173.56, "id": "m38", "t": "ingreso"}, {"c": "Paga extra de junio", "d": "", "estado": "previsto", "f": "2027-06-29", "i": 1989.05, "id": "m43", "t": "ingreso"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2027-07-01", "i": -700, "id": "m68", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2027-07-01", "i": -96, "id": "m69", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2027-07-01", "i": -100, "id": "m70", "t": "pago"}, {"c": "Nómina de julio", "d": "", "estado": "previsto", "f": "2027-07-29", "i": 3173.56, "id": "m39", "t": "ingreso"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2027-08-01", "i": -700, "id": "m71", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2027-08-01", "i": -96, "id": "m72", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2027-08-01", "i": -100, "id": "m73", "t": "pago"}, {"c": "Nómina de agosto", "d": "", "estado": "previsto", "f": "2027-08-29", "i": 2280.25, "id": "m40", "t": "ingreso"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2027-09-01", "i": -700, "id": "m74", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2027-09-01", "i": -96, "id": "m75", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2027-09-01", "i": -100, "id": "m76", "t": "pago"}, {"c": "Nómina de septiembre", "d": "", "estado": "previsto", "f": "2027-09-29", "i": 3173.56, "id": "m41", "t": "ingreso"}, {"c": "Gastos de vida", "d": "", "estado": "previsto", "f": "2027-10-01", "i": -700, "id": "m77", "t": "gasto"}, {"c": "Santander (préstamo) · cuota", "d": "santander", "estado": "previsto", "f": "2027-10-01", "i": -96, "id": "m78", "t": "pago"}, {"c": "Crédito Santander 2 · cuota", "d": "credsan2", "estado": "previsto", "f": "2027-10-01", "i": -100, "id": "m79", "t": "pago"}, {"c": "Nómina de octubre", "d": "", "estado": "previsto", "f": "2027-10-29", "i": 2490.44, "id": "m42", "t": "ingreso"}], "notas": "Plan sin préstamo puente de Joserra: Moneyman se vuelve a pedir el 1 nov si hace falta.", "saldo": {"fecha": "2026-10-17", "importe": 600}, "version": 1};</script></head><body><title>Mi Plan de Deudas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: libro de cuentas en dos columnas — cifras y flujos a la izquierda, el asesor fijo a la derecha; en móvil, una columna con el asesor justo después de las cifras. */
+:root {
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --surface-2: #eef1f6;
+  --line: #dde2ea;
+  --fg: #141a24;
+  --fg-2: #4b5563;
+  --fg-3: #7b8494;
+  --accent: #1f5fbf;
+  --accent-soft: #e3ecfa;
+  --good: #137a4b;
+  --warn: #a86400;
+  --bad: #c0352b;
+  --bad-soft: #fbe7e5;
+  --s-fijo: #2a78d6;
+  --s-aplazable: #eb6834;
+  --s-amigo: #1baf7a;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f131a; --surface: #171c25; --surface-2: #1f2531; --line: #2c3442;
+    --fg: #e9edf3; --fg-2: #b4bccb; --fg-3: #8590a3;
+    --accent: #6ea4f0; --accent-soft: #1d2b44;
+    --good: #4cc38a; --warn: #e3a948; --bad: #f07b70; --bad-soft: #3a1f1f;
+    --s-fijo: #3987e5; --s-aplazable: #d95926; --s-amigo: #199e70;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f131a; --surface: #171c25; --surface-2: #1f2531; --line: #2c3442;
+  --fg: #e9edf3; --fg-2: #b4bccb; --fg-3: #8590a3;
+  --accent: #6ea4f0; --accent-soft: #1d2b44;
+  --good: #4cc38a; --warn: #e3a948; --bad: #f07b70; --bad-soft: #3a1f1f;
+  --s-fijo: #3987e5; --s-aplazable: #d95926; --s-amigo: #199e70;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+h1, h2 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(24px, 4vw, 32px); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 17px; font-weight: 700; }
+.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3); font-weight: 600; }
+.muted { color: var(--fg-3); }
+button { font: inherit; cursor: pointer; }
+button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 18px; }
+.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 16px; }
+.top p { margin: 4px 0 0; color: var(--fg-2); }
+.layout { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr) 400px; grid-template-areas: "kpis chat" "flujo chat" "deuda chat" "prox chat" "lista chat"; align-items: start; }
+.kpis { grid-area: kpis; } .chat { grid-area: chat; } #sec-flujo { grid-area: flujo; } #sec-deuda { grid-area: deuda; } #sec-prox { grid-area: prox; } #sec-lista { grid-area: lista; }
+@media (max-width: 940px) {
+  .layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "kpis" "chat" "flujo" "deuda" "prox" "lista"; }
+}
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; min-width: 0; }
+.panel-hd { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; margin-bottom: 12px; }
+.panel-hd p { margin: 2px 0 0; color: var(--fg-3); font-size: 13px; }
+
+/* KPIs */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 640px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 4px; min-width: 0; }
+.kpi .v { font-family: var(--f-mono); font-variant-numeric: tabular-nums; font-size: clamp(19px, 2.4vw, 24px); font-weight: 500; overflow-wrap: anywhere; }
+.kpi .s { font-size: 12px; color: var(--fg-3); }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; width: fit-content; }
+.pill.ok { background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.warn { background: color-mix(in srgb, var(--warn) 16%, transparent); color: var(--warn); }
+
+/* Charts */
+.chart { position: relative; width: 100%; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart .axis text { fill: var(--fg-3); font-family: var(--f-mono); font-size: 11px; }
+.chart .grid line { stroke: var(--line); stroke-width: 1; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 6px 18px rgb(0 0 0 / 0.12); min-width: 170px; max-width: 260px; z-index: 5; }
+.tip b { font-family: var(--f-mono); font-weight: 500; }
+.tip .row { display: flex; justify-content: space-between; gap: 12px; }
+.tip .sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--fg-2); margin-top: 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+/* Lists */
+.rows { display: grid; }
+.row-i { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); }
+.row-i:first-child { border-top: 0; }
+.row-i .f { font-family: var(--f-mono); font-size: 12px; color: var(--fg-3); }
+.row-i .c { min-width: 0; }
+.row-i .c small { display: block; color: var(--fg-3); font-size: 12px; }
+.row-i .a { font-family: var(--f-mono); font-variant-numeric: tabular-nums; text-align: right; display: grid; justify-items: end; gap: 4px; }
+.pos { color: var(--good); } .neg { color: var(--fg); }
+.btn-s { border: 1px solid var(--line); background: var(--surface-2); color: var(--fg-2); border-radius: 7px; padding: 2px 9px; font-size: 12px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: transparent; color: var(--fg-2); padding: 4px 10px; font-size: 12px; }
+.seg button.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.btn-s:hover { color: var(--fg); border-color: var(--fg-3); }
+.grp { margin-top: 14px; }
+.grp:first-child { margin-top: 0; }
+.grp-hd { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--line); }
+.grp-hd .eyebrow { display: inline-flex; align-items: center; gap: 7px; }
+.grp-hd i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.debt { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.debt small { grid-column: 1 / -1; color: var(--fg-3); font-size: 12px; }
+.debt .num { text-align: right; }
+.tablewrap { overflow-x: auto; margin-top: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+th, td { padding: 5px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--fg-3); font-weight: 600; } th:first-child, td:first-child { text-align: left; }
+td { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin-top: 10px; }
+
+/* Chat */
+.chat { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); display: flex; flex-direction: column; height: min(78vh, 760px); padding: 0; overflow: hidden; }
+@media (max-width: 940px) { .chat { position: static; height: 560px; } }
+.chat-hd { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.chat-hd p { margin: 2px 0 0; font-size: 12px; color: var(--fg-3); }
+.msgs { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.msg { max-width: 92%; padding: 9px 12px; border-radius: 12px; font-size: 14px; overflow-wrap: anywhere; }
+.msg.u { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; white-space: pre-wrap; }
+.msg.a { align-self: flex-start; background: var(--surface-2); border-bottom-left-radius: 4px; }
+.msg.a p { margin: 0 0 6px; } .msg.a p:last-child { margin-bottom: 0; }
+.msg.a ul { margin: 2px 0 6px; padding-left: 18px; }
+.msg.sys { align-self: center; font-size: 12px; color: var(--fg-3); background: transparent; padding: 2px; text-align: center; }
+.msg.err { align-self: stretch; background: var(--bad-soft); color: var(--bad); font-size: 13px; }
+.thinking { color: var(--fg-3); font-style: italic; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 10px; }
+.chip { border: 1px solid var(--line); background: var(--surface); color: var(--fg-2); border-radius: 99px; padding: 4px 10px; font-size: 12px; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.composer { border-top: 1px solid var(--line); padding: 10px 12px; display: flex; gap: 8px; align-items: flex-end; }
+.composer textarea { flex: 1; min-width: 0; resize: none; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 14px; max-height: 120px; }
+.btn { border: 0; background: var(--accent); color: #fff; border-radius: 10px; padding: 9px 14px; font-weight: 600; font-size: 14px; }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.ghost { background: transparent; color: var(--fg-2); border: 1px solid var(--line); }
+.notice { margin: 0 16px 10px; padding: 8px 10px; border-radius: 8px; background: var(--accent-soft); font-size: 12px; color: var(--fg-2); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.empty { padding: 24px; text-align: center; color: var(--fg-3); }
+@media (prefers-reduced-motion: no-preference) { .msg { animation: in .18s ease-out; } @keyframes in { from { transform: translateY(4px); opacity: .6; } } }
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="eyebrow">Gestión de deudas</div>
+      <h1>Mi Plan de Deudas</h1>
+      <p id="sub">Cargando tus datos…</p>
+    </div>
+    <button class="btn ghost" id="undo" hidden>Deshacer último cambio</button>
+  </div>
+
+  <div class="layout">
+    <section class="kpis" id="kpis" aria-label="Resumen">
+      <div class="kpi"><span class="eyebrow">Saldo en cuenta</span><span class="v" id="k-saldo">—</span><span class="s" id="k-saldo-s">&nbsp;</span></div>
+      <div class="kpi"><span class="eyebrow">Deuda pendiente</span><span class="v" id="k-deuda">—</span><span class="s" id="k-deuda-s">Sin las cuotas de Santander</span></div>
+      <div class="kpi"><span class="eyebrow">Saldo más bajo previsto</span><span class="v" id="k-min">—</span><span id="k-min-s"></span></div>
+      <div class="kpi"><span class="eyebrow">Libre de deudas</span><span class="v" id="k-libre">—</span><span class="s" id="k-libre-s">&nbsp;</span></div>
+    </section>
+
+    <section class="panel chat" aria-label="Asesor">
+      <div class="chat-hd">
+        <div><h2>Asesor de deudas</h2><p>Pregúntale o cuéntale pagos, saldos y deudas nuevas: actualiza el plan.</p></div>
+        <button class="btn-s" id="clear-chat" title="Borrar la conversación">Nueva</button>
+      </div>
+      <div class="msgs" id="msgs" aria-live="polite"></div>
+      <div class="notice" id="changed" hidden><span id="changed-txt">El asesor ha cambiado el plan.</span><button class="btn-s" id="undo2">Deshacer</button></div>
+      <div class="chips" id="chips">
+        <button class="chip">¿Llego bien a noviembre?</button>
+        <button class="chip">He pagado Smartcredito</button>
+        <button class="chip">Mi saldo ahora es 650 €</button>
+        <button class="chip">¿Qué pasa si no vuelvo a pedir Moneyman?</button>
+      </div>
+      <form class="composer" id="form">
+        <textarea id="input" rows="1" placeholder="Escribe al asesor…" aria-label="Mensaje al asesor"></textarea>
+        <button class="btn" id="send" type="submit">Enviar</button>
+        <button class="btn ghost" id="stop" type="button" hidden>Parar</button>
+      </form>
+    </section>
+
+    <section class="panel" id="sec-flujo">
+      <div class="panel-hd">
+        <div><h2>Saldo previsto</h2><p>Tu cuenta día a día si se cumple el plan: nóminas, cuotas, devoluciones y gastos de vida.</p></div>
+        <div class="seg" role="group" aria-label="Periodo"><button class="on" data-rango="corto" id="r-corto">5 meses</button><button data-rango="todo" id="r-todo">Todo el plan</button></div>
+      </div>
+      <div class="chart" id="ch-saldo"><div class="empty">Aquí verás la evolución de tu saldo.</div></div>
+    </section>
+
+    <section class="panel" id="sec-deuda">
+      <div class="panel-hd">
+        <div><h2>Deuda pendiente a fin de mes</h2><p>Sin las cuotas de Santander, que van aparte a ~196 €/mes.</p></div>
+      </div>
+      <div class="chart" id="ch-deuda"><div class="empty">Aquí verás cómo baja tu deuda mes a mes.</div></div>
+      <div class="legend" id="leg-deuda"></div>
+      <details><summary>Ver la tabla mes a mes</summary><div class="tablewrap" id="tab-mes"></div></details>
+    </section>
+
+    <section class="panel" id="sec-prox">
+      <div class="panel-hd">
+        <div><h2>Próximos movimientos</h2><p>Los próximos 45 días. Marca «Hecho» cuando lo pagues o cobres: se descuenta de tu saldo.</p></div>
+      </div>
+      <div class="rows" id="prox"><div class="empty">Sin movimientos todavía.</div></div>
+    </section>
+
+    <section class="panel" id="sec-lista">
+      <div class="panel-hd">
+        <div><h2>Deudas</h2><p>Lo que queda hoy, por bloques.</p></div>
+      </div>
+      <div id="lista"><div class="empty">Sin deudas todavía.</div></div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ── Utilidades ──
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const r2 = n => Math.round(n * 100) / 100;
+  const eur = (n, d = 0) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: d, maximumFractionDigits: d }).format(n || 0);
+  const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const MESL = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const fdate = s => { const d = parse(s); return `${d.getDate()} ${MES[d.getMonth()]}`; };
+  const fdateY = s => { const d = parse(s); return `${d.getDate()} ${MES[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`; };
+  const hoy = () => iso(new Date());
+  const BLOQ = {
+    fijo: { label: 'Fijos', desc: 'no se aplazan', color: 'var(--s-fijo)' },
+    aplazable: { label: 'Aplazables', desc: 'se pagan y se vuelven a pedir sin intereses', color: 'var(--s-aplazable)' },
+    amigo: { label: 'Amigos y familia', desc: 'sin plazo ni intereses', color: 'var(--s-amigo)' },
+    santander: { label: 'Cuotas Santander', desc: 'fuera de la deuda total', color: 'var(--fg-3)' },
+  };
+  const CUENTAN = ['fijo', 'aplazable', 'amigo'];
+
+  let st = null;          // estado del plan (fuente: db "plan/estado")
+  let docRef = null;
+  const undoStack = [];
+  let busy = false;
+  let rango = 'corto';
+
+  // ── Cálculos ──
+  function pendientes(estado) {
+    return (estado.movimientos || []).filter(m => m.estado !== 'hecho').slice()
+      .sort((a, b) => a.f.localeCompare(b.f) || (b.i > 0) - (a.i > 0));
+  }
+  function proyeccion(estado) {
+    const s0 = estado.saldo; let b = s0.importe;
+    const pts = [{ f: s0.fecha, b, evs: [] }];
+    for (const m of pendientes(estado)) {
+      const f = m.f < s0.fecha ? s0.fecha : m.f;
+      b = r2(b + (m.i || 0));
+      const last = pts[pts.length - 1];
+      if (last.f === f) { last.b = b; last.evs.push(m); } else pts.push({ f, b, evs: [m] });
+    }
+    return pts;
+  }
+  function minimo(pts) { return pts.reduce((a, p) => p.b < a.b ? p : a, pts[0]); }
+  function restoPorDeuda(estado, hasta) {
+    const rest = {};
+    for (const d of estado.deudas) rest[d.id] = d.pendiente || 0;
+    for (const m of pendientes(estado)) {
+      if (hasta && m.f > hasta) break;
+      if (!m.d || !(m.d in rest)) continue;
+      if (m.t === 'prestamo') rest[m.d] += (m.debe || m.i || 0);
+      else if (m.i < 0) rest[m.d] += m.i;
+      if (m.cierra) rest[m.d] = 0;
+      rest[m.d] = Math.max(0, r2(rest[m.d]));
+    }
+    return rest;
+  }
+  function deudaPorBloque(estado, hasta) {
+    const rest = restoPorDeuda(estado, hasta), out = { fijo: 0, aplazable: 0, amigo: 0, santander: 0 };
+    for (const d of estado.deudas) out[d.bloque] = r2((out[d.bloque] || 0) + rest[d.id]);
+    return out;
+  }
+  function finesDeMes(estado) {
+    const ini = parse(estado.saldo.fecha), movs = pendientes(estado);
+    const last = movs.length ? parse(movs[movs.length - 1].f) : ini;
+    const out = [];
+    let y = ini.getFullYear(), m = ini.getMonth();
+    while (new Date(y, m, 1) <= last) {
+      out.push({ key: `${y}-${String(m + 1).padStart(2, '0')}`, fin: iso(new Date(y, m + 1, 0)), y, m });
+      m++; if (m === 12) { m = 0; y++; }
+    }
+    return out;
+  }
+  function libre(estado) {
+    for (const mm of finesDeMes(estado)) {
+      const b = deudaPorBloque(estado, mm.fin);
+      if (b.fijo + b.aplazable + b.amigo < 1) return mm;
+    }
+    return null;
+  }
+  function resumenMensual(estado) {
+    const pts = proyeccion(estado);
+    return finesDeMes(estado).map(mm => {
+      const b = deudaPorBloque(estado, mm.fin);
+      const saldo = [...pts].reverse().find(p => p.f <= mm.fin)?.b ?? estado.saldo.importe;
+      const enMes = pts.filter(p => p.f.startsWith(mm.key));
+      const minMes = enMes.length ? Math.min(...enMes.map(p => p.b)) : saldo;
+      return { mes: `${MESL[mm.m]} ${mm.y}`, key: mm.key, saldoFin: r2(saldo), saldoMin: r2(minMes), deuda: r2(b.fijo + b.aplazable + b.amigo), ...b };
+    });
+  }
+
+  // ── Render ──
+  function render() {
+    if (!st) return;
+    const pts = proyeccion(st), mn = minimo(pts), lib = libre(st);
+    const hoyB = { fijo: 0, aplazable: 0, amigo: 0, santander: 0 };
+    for (const d of st.deudas) hoyB[d.bloque] = r2((hoyB[d.bloque] || 0) + (d.pendiente || 0));
+    const total = hoyB.fijo + hoyB.aplazable + hoyB.amigo;
+    $('sub').textContent = `Saldo apuntado el ${fdateY(st.saldo.fecha)} · ${st.deudas.filter(d => d.bloque !== 'santander' && (d.pendiente || 0) > 0).length} deudas activas · gastos de vida ${eur(st.gastosMes)}/mes`;
+    $('k-saldo').textContent = eur(st.saldo.importe, 2);
+    $('k-saldo-s').textContent = `a ${fdateY(st.saldo.fecha)}`;
+    $('k-deuda').textContent = eur(total, 2);
+    $('k-min').textContent = eur(mn.b, 0);
+    $('k-min-s').innerHTML = mn.b < 0
+      ? `<span class="pill bad">✕ te faltan ${eur(-mn.b)} el ${fdate(mn.f)}</span>`
+      : mn.b < 150 ? `<span class="pill warn">▲ muy justo el ${fdate(mn.f)}</span>` : `<span class="pill ok">✓ llegas a todo</span>`;
+    $('k-libre').textContent = lib ? `${MESL[lib.m].slice(0, 1).toUpperCase() + MESL[lib.m].slice(1)} ${lib.y}` : '—';
+    $('k-libre-s').textContent = `Santander aparte: ${eur(hoyB.santander)} a ~196 €/mes`;
+    const lim = iso(new Date(parse(st.saldo.fecha).getFullYear(), parse(st.saldo.fecha).getMonth() + 5, 0));
+    const ptsV = rango === 'corto' ? pts.filter(p => p.f <= lim) : pts;
+    drawSaldo(ptsV, minimo(ptsV), rango === 'corto' ? lim : null);
+    drawDeuda();
+    drawProx();
+    drawLista();
+    $('undo').hidden = !undoStack.length;
+  }
+
+  function niceTicks(lo, hi, n) {
+    const span = hi - lo || 1, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 2.5, 5, 10].map(k => k * mag).find(s => span / s <= n) || 10 * mag;
+    const t = []; for (let v = Math.floor(lo / step) * step; v <= hi + 1e-6; v += step) t.push(Math.round(v));
+    return t;
+  }
+  const kfmt = v => Math.abs(v) >= 1000 ? (v / 1000).toLocaleString('es-ES', { maximumFractionDigits: 1 }) + 'k' : String(v);
+
+  function drawSaldo(pts, mn, hasta) {
+    const box = $('ch-saldo');
+    const W = 760, H = 280, L = 46, R = 14, T = 14, B = 28;
+    const x0 = parse(pts[0].f).getTime(), x1 = Math.max(hasta ? parse(hasta).getTime() : parse(pts[pts.length - 1].f).getTime(), x0 + 864e5);
+    const ys = pts.map(p => p.b), lo = Math.min(0, ...ys), hi = Math.max(...ys, 100);
+    const ticks = niceTicks(lo, hi, 5), yLo = Math.min(lo, ticks[0]), yHi = Math.max(hi, ticks[ticks.length - 1]);
+    const X = t => L + (t - x0) / (x1 - x0) * (W - L - R);
+    const Y = v => T + (yHi - v) / (yHi - yLo) * (H - T - B);
+    let d = '', prevY = null;
+    pts.forEach((p, k) => {
+      const x = X(parse(p.f).getTime()), y = Y(p.b);
+      d += k === 0 ? `M${x},${y}` : `H${x}V${y}`;
+      prevY = y;
+    });
+    d += `H${X(x1)}`;
+    const area = d + `V${Y(Math.max(yLo, 0))}H${L}Z`;
+    // meses en el eje
+    const xt = []; const s = parse(pts[0].f); let mm = new Date(s.getFullYear(), s.getMonth() + 1, 1);
+    while (mm.getTime() <= x1) { xt.push(mm); mm = new Date(mm.getFullYear(), mm.getMonth() + 1, 1); }
+    const every = xt.length > 8 ? 2 : 1;
+    const neg = pts.filter(p => p.b < 0);
+    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Saldo previsto: mínimo ${eur(mn.b)} el ${fdate(mn.f)}">
+      <g class="grid">${ticks.map(v => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/>`).join('')}</g>
+      <g class="axis">${ticks.map(v => `<text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${kfmt(v)}</text>`).join('')}
+        ${xt.filter((_, k) => k % every === 0).map(t => `<text x="${X(t.getTime())}" y="${H - 8}" text-anchor="middle">${MES[t.getMonth()]}${t.getMonth() === 0 ? ' ' + String(t.getFullYear()).slice(2) : ''}</text>`).join('')}</g>
+      <path d="${area}" fill="var(--accent)" fill-opacity="0.10"/>
+      <line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--fg-3)" stroke-width="1.5"/>
+      <path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+      ${neg.map(p => `<circle cx="${X(parse(p.f).getTime())}" cy="${Y(p.b)}" r="4" fill="var(--bad)" stroke="var(--surface)" stroke-width="2"/>`).join('')}
+      <circle cx="${X(parse(mn.f).getTime())}" cy="${Y(mn.b)}" r="5" fill="${mn.b < 0 ? 'var(--bad)' : 'var(--accent)'}" stroke="var(--surface)" stroke-width="2"/>
+      <text x="${Math.min(X(parse(mn.f).getTime()) + 8, W - 130)}" y="${Y(mn.b) > H - B - 30 ? Y(mn.b) - 10 : Y(mn.b) + 18}" fill="var(--fg-2)" font-size="11" font-family="IBM Plex Mono, monospace">mín. ${eur(mn.b)} · ${fdate(mn.f)}</text>
+      <line id="sx" y1="${T}" y2="${H - B}" stroke="var(--fg-3)" stroke-dasharray="3 3" visibility="hidden"/>
+      <circle id="sd" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2" visibility="hidden"/>
+      <rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent" id="shit"/>
+    </svg><div class="tip" id="stip" hidden></div>`;
+    const svg = box.querySelector('svg'), tip = $('stip'), hit = $('shit');
+    const move = ev => {
+      const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) / r.width * W;
+      const t = x0 + (sx - L) / (W - L - R) * (x1 - x0);
+      let p = pts[0]; for (const q of pts) if (parse(q.f).getTime() <= t) p = q;
+      const px = X(parse(p.f).getTime()), py = Y(p.b);
+      $('sx').setAttribute('x1', px); $('sx').setAttribute('x2', px); $('sx').setAttribute('visibility', 'visible');
+      $('sd').setAttribute('cx', px); $('sd').setAttribute('cy', py); $('sd').setAttribute('visibility', 'visible');
+      const evs = p.evs.filter(e => e.i).slice(0, 6);
+      tip.innerHTML = `<div class="row"><span>${fdateY(p.f)}</span><b class="${p.b < 0 ? 'neg' : ''}" style="${p.b < 0 ? 'color:var(--bad)' : ''}">${eur(p.b, 2)}</b></div>` +
+        (evs.length ? `<div style="margin-top:6px;display:grid;gap:2px">${evs.map(e => `<div class="row"><span class="muted">${esc(e.c)}</span><b class="${e.i > 0 ? 'pos' : ''}">${e.i > 0 ? '+' : ''}${eur(e.i)}</b></div>`).join('')}${p.evs.filter(e => e.i).length > 6 ? '<div class="muted">…</div>' : ''}</div>` : '<div class="muted">Saldo de partida</div>');
+      tip.hidden = false;
+      const bx = box.getBoundingClientRect(), left = (px / W) * bx.width;
+      tip.style.left = Math.max(0, Math.min(left + 12, bx.width - tip.offsetWidth)) + 'px';
+      tip.style.top = Math.max(0, (py / H) * bx.height - tip.offsetHeight - 10) + 'px';
+    };
+    hit.addEventListener('pointermove', move);
+    hit.addEventListener('pointerdown', move);
+    hit.addEventListener('pointerleave', () => { tip.hidden = true; $('sx').setAttribute('visibility', 'hidden'); $('sd').setAttribute('visibility', 'hidden'); });
+  }
+
+  function drawDeuda() {
+    const box = $('ch-deuda'), rows = resumenMensual(st);
+    if (!rows.length) return;
+    const W = 760, H = 250, L = 46, R = 8, T = 10, B = 28;
+    const hi = Math.max(...rows.map(r => r.deuda), 100), ticks = niceTicks(0, hi, 4), yHi = Math.max(hi, ticks[ticks.length - 1]);
+    const n = rows.length, bw = (W - L - R) / n, w = Math.max(6, Math.min(34, bw * 0.62));
+    const Y = v => T + (yHi - v) / yHi * (H - T - B);
+    const order = ['fijo', 'aplazable', 'amigo'];
+    let bars = '';
+    rows.forEach((r, k) => {
+      const cx = L + bw * k + bw / 2; let acc = 0; const segs = order.filter(b => r[b] > 0.5);
+      segs.forEach((b, j) => {
+        const y0 = Y(acc), y1 = Y(acc + r[b]); acc += r[b];
+        const top = j === segs.length - 1, h = Math.max(0, y0 - y1 - (j ? 2 : 0));
+        if (h <= 0) return;
+        const x = cx - w / 2, yy = y1;
+        bars += top
+          ? `<path d="M${x},${yy + h}V${yy + 4}Q${x},${yy} ${x + 4},${yy}H${x + w - 4}Q${x + w},${yy} ${x + w},${yy + 4}V${yy + h}Z" fill="${BLOQ[b].color}"/>`
+          : `<rect x="${x}" y="${yy}" width="${w}" height="${h}" fill="${BLOQ[b].color}"/>`;
+      });
+      if (!segs.length) bars += `<text x="${cx}" y="${Y(0) - 6}" text-anchor="middle" font-size="12" fill="var(--good)">✓</text>`;
+    });
+    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Deuda pendiente a fin de cada mes">
+      <g class="grid">${ticks.map(v => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/>`).join('')}</g>
+      <g class="axis">${ticks.map(v => `<text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${kfmt(v)}</text>`).join('')}
+      ${rows.map((r, k) => `<text x="${L + bw * k + bw / 2}" y="${H - 8}" text-anchor="middle">${MES[Number(r.key.slice(5)) - 1]}</text>`).join('')}</g>
+      ${bars}
+      <line id="dh" y1="${T}" y2="${H - B}" stroke="var(--fg-3)" stroke-opacity=".35" visibility="hidden"/>
+      <rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent" id="dhit"/>
+    </svg><div class="tip" id="dtip" hidden></div>`;
+    $('leg-deuda').innerHTML = order.map(b => `<span><i style="background:${BLOQ[b].color}"></i>${BLOQ[b].label}</span>`).join('');
+    const svg = box.querySelector('svg'), tip = $('dtip');
+    const move = ev => {
+      const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) / r.width * W;
+      const k = Math.max(0, Math.min(n - 1, Math.floor((sx - L) / bw))), row = rows[k];
+      tip.innerHTML = `<div class="row"><span>Fin de ${row.mes}</span><b>${eur(row.deuda)}</b></div><div style="margin-top:6px;display:grid;gap:2px">` +
+        order.map(b => `<div class="row"><span><i class="sw" style="background:${BLOQ[b].color}"></i>${BLOQ[b].label}</span><b>${eur(row[b])}</b></div>`).join('') +
+        `<div class="row muted"><span>Saldo a fin de mes</span><b>${eur(row.saldoFin)}</b></div></div>`;
+      tip.hidden = false;
+      const bx = box.getBoundingClientRect(), cx = (L + bw * k + bw / 2) / W * bx.width;
+      $('dh').setAttribute('x1', L + bw * k + bw / 2); $('dh').setAttribute('x2', L + bw * k + bw / 2); $('dh').setAttribute('visibility', 'visible');
+      tip.style.left = Math.max(0, Math.min(cx + 12, bx.width - tip.offsetWidth)) + 'px';
+      tip.style.top = '6px';
+    };
+    $('dhit').addEventListener('pointermove', move);
+    $('dhit').addEventListener('pointerdown', move);
+    $('dhit').addEventListener('pointerleave', () => { tip.hidden = true; $('dh').setAttribute('visibility', 'hidden'); });
+    $('tab-mes').innerHTML = `<table><thead><tr><th>Mes</th><th>Fijos</th><th>Aplazables</th><th>Amigos</th><th>Deuda</th><th>Saldo mín.</th><th>Saldo fin</th><th>Santander</th></tr></thead><tbody>` +
+      rows.map(r => `<tr><td>${r.mes}</td><td>${eur(r.fijo)}</td><td>${eur(r.aplazable)}</td><td>${eur(r.amigo)}</td><td>${eur(r.deuda)}</td><td style="${r.saldoMin < 0 ? 'color:var(--bad)' : ''}">${eur(r.saldoMin)}</td><td>${eur(r.saldoFin)}</td><td class="muted">${eur(r.santander)}</td></tr>`).join('') + '</tbody></table>';
+  }
+
+  function drawProx() {
+    const ini = st.saldo.fecha, lim = iso(new Date(parse(ini > hoy() ? ini : hoy()).getTime() + 45 * 864e5));
+    const movs = pendientes(st).filter(m => m.f <= lim);
+    $('prox').innerHTML = movs.length ? movs.map(m => {
+      const deuda = st.deudas.find(d => d.id === m.d);
+      const atras = m.f < hoy();
+      return `<div class="row-i"><span class="f">${fdate(m.f)}</span><span class="c">${esc(m.c)}${deuda ? `<small>${esc(deuda.nombre)}${atras ? ' · <span style="color:var(--warn)">pendiente de confirmar</span>' : ''}</small>` : atras ? '<small style="color:var(--warn)">pendiente de confirmar</small>' : ''}</span>
+        <span class="a"><span class="${m.i > 0 ? 'pos' : 'neg'}">${m.i ? (m.i > 0 ? '+' : '') + eur(m.i, 2) : 'neto 0'}</span><button class="btn-s" data-hecho="${esc(m.id)}">Hecho</button></span></div>`;
+    }).join('') : '<div class="empty">No hay movimientos en los próximos 45 días.</div>';
+  }
+
+  function drawLista() {
+    const html = ['fijo', 'aplazable', 'amigo', 'santander'].map(b => {
+      const ds = st.deudas.filter(d => d.bloque === b && (d.pendiente || 0) > 0.5);
+      if (!ds.length) return '';
+      const tot = ds.reduce((a, d) => a + d.pendiente, 0);
+      return `<div class="grp"><div class="grp-hd"><span class="eyebrow"><i style="background:${BLOQ[b].color}"></i>${BLOQ[b].label} · ${BLOQ[b].desc}</span><span class="num">${eur(tot, 2)}</span></div>` +
+        ds.map(d => `<div class="debt"><span>${esc(d.nombre)}</span><span class="num">${eur(d.pendiente, 2)}</span>${d.notas ? `<small>${esc(d.notas)}</small>` : ''}</div>`).join('') + '</div>';
+    }).join('');
+    $('lista').innerHTML = html || '<div class="empty">Sin deudas pendientes. 🎉</div>';
+  }
+
+  // ── Cambios de estado ──
+  const snapshot = () => JSON.parse(JSON.stringify(st));
+  function pushUndo() { undoStack.push(snapshot()); if (undoStack.length > 20) undoStack.shift(); }
+  let writing = Promise.resolve();
+  const LOCAL_KEY = 'plan-deudas-estado-v1';
+  function guardar() {
+    if (!docRef) { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(st)); } catch {} return; }
+    const body = snapshot();
+    writing = writing.then(() => docRef.set(body)).catch(e => sys(`No se pudo guardar (${e?.code || 'error'}). Vuelve a intentarlo.`, true));
+  }
+  function marcarHecho(id) {
+    const m = st.movimientos.find(x => x.id === id);
+    if (!m || m.estado === 'hecho') throw new Error('No existe ese movimiento pendiente: ' + id);
+    m.estado = 'hecho';
+    st.saldo.importe = r2(st.saldo.importe + (m.i || 0));
+    const d = st.deudas.find(x => x.id === m.d);
+    if (d) {
+      if (m.t === 'prestamo') d.pendiente = r2((d.pendiente || 0) + (m.debe || m.i || 0));
+      else if (m.i < 0) d.pendiente = Math.max(0, r2((d.pendiente || 0) + m.i));
+      if (m.cierra) d.pendiente = 0;
+    }
+    return { ok: true, saldo: st.saldo.importe, deuda: d ? { id: d.id, pendiente: d.pendiente } : null };
+  }
+  $('prox').addEventListener('click', e => {
+    const id = e.target.closest('[data-hecho]')?.dataset.hecho; if (!id || busy) return;
+    pushUndo(); try { marcarHecho(id); } catch { undoStack.pop(); return; }
+    guardar(); render();
+  });
+  function deshacer() {
+    if (!undoStack.length || busy) return;
+    st = undoStack.pop(); guardar(); render(); $('changed').hidden = true;
+  }
+  document.querySelectorAll('[data-rango]').forEach(b => b.onclick = () => {
+    rango = b.dataset.rango; document.querySelectorAll('[data-rango]').forEach(x => x.classList.toggle('on', x === b)); render();
+  });
+  $('undo').onclick = deshacer; $('undo2').onclick = deshacer;
+
+  // ── Herramientas del asesor ──
+  const num = v => { const n = Number(String(v).replace(',', '.')); if (!isFinite(n)) throw new Error('Importe no válido'); return r2(n); };
+  const fecha = v => { const s = String(v || ''); if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) throw new Error('Fecha en formato AAAA-MM-DD'); return s; };
+  let cambios = [];
+  const TOOLS = [
+    { name: 'proyeccion', description: 'Devuelve el saldo mínimo previsto (fecha e importe), la fecha en que queda libre de deudas y un resumen por mes (saldo mínimo y final, deuda por bloque). Úsala para comprobar si un plan llega o tras cualquier cambio.',
+      execute: () => { const pts = proyeccion(st), mn = minimo(pts), lib = libre(st);
+        return { saldoMinimo: { fecha: mn.f, importe: mn.b }, libreDeDeudas: lib ? lib.key : null, meses: resumenMensual(st).map(r => ({ mes: r.key, saldoMin: r.saldoMin, saldoFin: r.saldoFin, fijo: r.fijo, aplazable: r.aplazable, amigo: r.amigo, santander: r.santander })) }; } },
+    { name: 'registrar_saldo', description: 'Apunta el saldo real de la cuenta en una fecha. Úsalo cuando el usuario diga cuánto tiene. Los movimientos previstos anteriores a esa fecha siguen pendientes hasta que se marquen como hechos.',
+      inputSchema: { type: 'object', properties: { fecha: { type: 'string', description: 'AAAA-MM-DD' }, importe: { type: 'number' } }, required: ['fecha', 'importe'] },
+      execute: i => { st.saldo = { fecha: fecha(i.fecha), importe: num(i.importe) }; cambios.push(`saldo ${eur(st.saldo.importe, 2)}`); return { ok: true }; } },
+    { name: 'marcar_hecho', description: 'Marca un movimiento previsto (por su id) como ya pagado o cobrado: lo resta o suma al saldo y baja la deuda. Úsalo cuando el usuario diga que ya ha pagado o cobrado algo y NO te dé un saldo nuevo.',
+      inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+      execute: i => { const m = st.movimientos.find(x => x.id === String(i.id)); const r = marcarHecho(String(i.id)); cambios.push(`hecho: ${m.c}`); return r; } },
+    { name: 'quitar_previsto', description: 'Marca un movimiento previsto como hecho SIN tocar el saldo (porque el usuario ya dio un saldo nuevo que lo incluye). Ajusta la deuda igual que marcar_hecho.',
+      inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+      execute: i => { const m = st.movimientos.find(x => x.id === String(i.id)); if (!m) throw new Error('No existe ' + i.id); const s = st.saldo.importe; marcarHecho(m.id); st.saldo.importe = s; cambios.push(`hecho: ${m.c}`); return { ok: true }; } },
+    { name: 'anadir_movimiento', description: 'Añade un movimiento previsto al calendario. tipo: ingreso | gasto | pago (a una deuda) | prestamo (dinero que entra y crea o aumenta una deuda; indica debe = lo que habrá que devolver) | aplazado (pagar y volver a pedir, importe 0). importe con signo: positivo entra, negativo sale. deuda = id de la deuda afectada. cierra = true si ese pago salda la deuda entera.',
+      inputSchema: { type: 'object', properties: { fecha: { type: 'string' }, concepto: { type: 'string' }, tipo: { type: 'string', enum: ['ingreso', 'gasto', 'pago', 'prestamo', 'aplazado'] }, importe: { type: 'number' }, deuda: { type: 'string' }, debe: { type: 'number' }, cierra: { type: 'boolean' } }, required: ['fecha', 'concepto', 'tipo', 'importe'] },
+      execute: i => { const m = { id: 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), f: fecha(i.fecha), c: String(i.concepto).slice(0, 120), t: String(i.tipo), d: String(i.deuda || ''), i: num(i.importe), estado: 'previsto' };
+        if (i.debe != null) m.debe = num(i.debe); if (i.cierra) m.cierra = true; st.movimientos.push(m); cambios.push(`nuevo: ${m.c}`); return { ok: true, id: m.id }; } },
+    { name: 'editar_movimiento', description: 'Cambia campos de un movimiento previsto existente (fecha, concepto, importe, tipo, deuda, debe, cierra).',
+      inputSchema: { type: 'object', properties: { id: { type: 'string' }, fecha: { type: 'string' }, concepto: { type: 'string' }, importe: { type: 'number' }, tipo: { type: 'string' }, deuda: { type: 'string' }, debe: { type: 'number' }, cierra: { type: 'boolean' } }, required: ['id'] },
+      execute: i => { const m = st.movimientos.find(x => x.id === String(i.id)); if (!m) throw new Error('No existe ' + i.id);
+        if (i.fecha != null) m.f = fecha(i.fecha); if (i.concepto != null) m.c = String(i.concepto).slice(0, 120); if (i.importe != null) m.i = num(i.importe);
+        if (i.tipo != null) m.t = String(i.tipo); if (i.deuda != null) m.d = String(i.deuda); if (i.debe != null) m.debe = num(i.debe); if (i.cierra != null) m.cierra = !!i.cierra;
+        cambios.push(`editado: ${m.c}`); return { ok: true }; } },
+    { name: 'borrar_movimiento', description: 'Elimina un movimiento previsto por su id.',
+      inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+      execute: i => { const k = st.movimientos.findIndex(x => x.id === String(i.id)); if (k < 0) throw new Error('No existe ' + i.id); cambios.push(`borrado: ${st.movimientos[k].c}`); st.movimientos.splice(k, 1); return { ok: true }; } },
+    { name: 'guardar_deuda', description: 'Crea o actualiza una deuda. bloque: fijo (no se aplaza) | aplazable (se paga y se vuelve a pedir sin intereses) | amigo (sin plazo ni interés) | santander (cuota mensual fuera de la deuda total). pendiente = lo que se debe HOY. Para que aparezca en el calendario añade también sus pagos con anadir_movimiento.',
+      inputSchema: { type: 'object', properties: { id: { type: 'string', description: 'id corto en minúsculas sin espacios' }, nombre: { type: 'string' }, bloque: { type: 'string', enum: ['fijo', 'aplazable', 'amigo', 'santander'] }, pendiente: { type: 'number' }, notas: { type: 'string' } }, required: ['id'] },
+      execute: i => { const id = String(i.id).toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 30); if (!id) throw new Error('id vacío');
+        let d = st.deudas.find(x => x.id === id); const nuevo = !d; if (!d) { if (!i.nombre || !i.bloque) throw new Error('Para crear una deuda hacen falta nombre y bloque'); d = { id, nombre: '', bloque: 'fijo', pendiente: 0, notas: '' }; st.deudas.push(d); }
+        if (i.nombre != null) d.nombre = String(i.nombre).slice(0, 60); if (i.bloque != null) { if (!BLOQ[i.bloque]) throw new Error('bloque no válido'); d.bloque = i.bloque; }
+        if (i.pendiente != null) d.pendiente = num(i.pendiente); if (i.notas != null) d.notas = String(i.notas).slice(0, 240);
+        cambios.push(`${nuevo ? 'nueva deuda' : 'deuda'}: ${d.nombre}`); return { ok: true, id }; } },
+    { name: 'editar_gastos', description: 'Cambia los gastos de vida mensuales previstos (también los movimientos futuros de "Gastos de vida").',
+      inputSchema: { type: 'object', properties: { importe: { type: 'number' } }, required: ['importe'] },
+      execute: i => { const v = Math.abs(num(i.importe)); st.gastosMes = v; for (const m of pendientes(st)) if (m.t === 'gasto' && /^Gastos de vida$/.test(m.c)) m.i = -v; cambios.push(`gastos ${eur(v)}/mes`); return { ok: true }; } },
+  ];
+
+  function contexto() {
+    const movs = pendientes(st).map(m => [m.id, m.f, m.c, m.t, m.d || '', m.i, m.debe ?? '', m.cierra ? 1 : ''].join('|')).join('\n');
+    const deudas = st.deudas.map(d => [d.id, d.nombre, d.bloque, d.pendiente, d.notas || ''].join('|')).join('\n');
+    const pts = proyeccion(st), mn = minimo(pts), lib = libre(st);
+    return `HOY: ${hoy()}
+SALDO APUNTADO: ${st.saldo.importe} € el ${st.saldo.fecha}
+GASTOS DE VIDA: ${st.gastosMes} €/mes (el día 1)
+SALDO MÍNIMO PREVISTO: ${mn.b} € el ${mn.f} · LIBRE DE DEUDAS (sin Santander): ${lib ? lib.key : 'no dentro del plan'}
+NOTAS: ${st.notas || ''}
+
+DEUDAS (id|nombre|bloque|pendiente hoy|notas):
+${deudas}
+
+MOVIMIENTOS PREVISTOS (id|fecha|concepto|tipo|deuda|importe con signo|debe|cierra):
+${movs}`;
+  }
+  const REGLAS = `Eres el asesor de deudas personal de esta persona. Hablas en español, de tú, claro y directo, con frases cortas. Te centras SOLO en la gestión de sus deudas, pagos, saldo y flujo de caja; si te preguntan otra cosa, lo reconduces con amabilidad.
+
+Cómo funciona su situación:
+- Bloques: "fijo" (no se aplaza: Moneyman, Vivus, Smartcredito), "aplazable" (Pagolisto 1 y 2, Crédito Santander 1: se paga la cuota y se vuelve a pedir el mismo día sin intereses; hace falta tener el dinero de la cuota en ese momento), "amigo" (sin plazo ni interés; Ama es prioritaria) y "santander" (Santander préstamo 96 €/mes y Crédito Santander 2 100 €/mes: cuotas fijas que NO cuentan en la deuda total ni en la fecha de fin; más adelante decidirá si amortizarlas).
+- Volver a pedir: Moneyman da 1.100 € y hay que devolver 1.400 € (coste 300 €); Smartcredito da 300 € y hay que devolver 435 € (coste 135 €). Son caros: proponlos solo si no hay alternativa y di el coste.
+- Gastos de vida previstos: los indicados (700 €/mes salvo cambio).
+- Nóminas netas cobradas el día 29 (28 en febrero); paga extra en diciembre y junio; variable en febrero.
+
+Cómo actuar:
+- Usa los datos de abajo; no inventes cifras. Si haces cuentas, compruébalas con la herramienta "proyeccion".
+- Cuando te cuente un hecho (ha pagado algo, tiene un saldo nuevo, una deuda nueva, cambia una fecha o un importe), actualiza los datos con las herramientas y confirma en una línea qué has cambiado. Si da un saldo nuevo, usa registrar_saldo y marca con quitar_previsto los movimientos ya pasados que ese saldo ya incluye. Si algo es ambiguo, pregunta antes de cambiar.
+- Cuando propongas o cambies un plan, comprueba con "proyeccion" que el saldo nunca queda negativo y dilo. Si queda negativo, di cuánto falta, cuándo, y da la opción más barata.
+- Si aparece dinero que no cuadra o se mencionan apuestas, no lo cuentes como ingreso fiable; recuérdale con tacto que el plan depende de no apostar, sin sermones.
+- Respuestas breves: como mucho unas 8 líneas o una lista corta. Cifras en euros con formato español (1.234,56 €). Sin tablas.
+
+DATOS ACTUALES:
+`;
+
+  // ── Chat ──
+  const CHAT_KEY = 'plan-deudas-chat-v1';
+  let hist = [];
+  try { hist = JSON.parse(localStorage.getItem(CHAT_KEY) || '[]'); } catch { hist = []; }
+  const saveHist = () => { try { localStorage.setItem(CHAT_KEY, JSON.stringify(hist.slice(-30))); } catch {} };
+  function md(t) {
+    const lines = esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').split('\n');
+    let out = '', inList = false;
+    for (const l of lines) {
+      const li = l.match(/^\s*[-•*]\s+(.*)/) || l.match(/^\s*\d+[.)]\s+(.*)/);
+      if (li) { if (!inList) { out += '<ul>'; inList = true; } out += `<li>${li[1]}</li>`; continue; }
+      if (inList) { out += '</ul>'; inList = false; }
+      if (l.trim()) out += `<p>${l}</p>`;
+    }
+    return out + (inList ? '</ul>' : '');
+  }
+  function bubble(role, text) {
+    const el = document.createElement('div');
+    el.className = 'msg ' + role;
+    if (role === 'a') el.innerHTML = md(text); else el.textContent = text;
+    $('msgs').appendChild(el); $('msgs').scrollTop = $('msgs').scrollHeight;
+    return el;
+  }
+  function sys(text, err) { const el = bubble(err ? 'err' : 'sys', text); return el; }
+  function renderHist() {
+    $('msgs').innerHTML = '';
+    if (!hist.length) bubble('a', 'Hola. Tengo tu plan cargado: deudas, nóminas, gastos y el calendario de pagos. Pregúntame si llegas a fin de mes, qué conviene pagar primero o cuéntame lo que hayas pagado y lo apunto.');
+    for (const m of hist) bubble(m.role === 'user' ? 'u' : 'a', m.content);
+  }
+  renderHist();
+
+  let sample = null, ctl = null;
+  const ERR = {
+    not_granted: 'No has permitido que esta página use Claude. Puedes activarlo en los permisos de la página.',
+    sampling_disabled: 'Claude no está disponible para tu cuenta ahora mismo.',
+    rate_limited: 'Has hecho muchas preguntas seguidas. Espera un poco y vuelve a intentarlo.',
+    session_expired: 'Tu sesión ha caducado. Vuelve a iniciar sesión en Claude.',
+    prompt_too_large: 'La conversación es demasiado larga. Pulsa «Nueva» para empezar otra.',
+    refused: 'El asesor no ha podido responder a eso. Prueba a decirlo de otra forma.',
+    tools_unavailable: 'Esta vista no permite que el asesor cambie datos; solo puede responder.',
+  };
+  async function enviar(texto) {
+    texto = texto.trim();
+    if (!texto || busy) return;
+    if (!sample) { sys('El asesor solo funciona al abrir esta página dentro de Claude.', true); return; }
+    if (!st) { sys('Todavía no se han cargado tus datos.', true); return; }
+    busy = true; $('send').disabled = true; $('stop').hidden = false; $('changed').hidden = true;
+    $('input').value = ''; autoGrow();
+    hist.push({ role: 'user', content: texto }); saveHist(); bubble('u', texto);
+    const out = bubble('a', ''); out.innerHTML = '<span class="thinking">Pensando…</span>';
+    const antes = snapshot(); cambios = [];
+    ctl = new AbortController();
+    const prev = hist.slice(-12);
+    while (prev.length && prev[0].role !== 'user') prev.shift();
+    const turns = [{ role: 'user', content: REGLAS + contexto() }, ...prev];
+    let tools = TOOLS;
+    try { const lim = await sample.limits(); if (!lim?.tools) tools = undefined; else if (lim.tools.maxCount < TOOLS.length) tools = TOOLS.slice(0, lim.tools.maxCount); } catch { tools = undefined; }
+    const wrapped = tools?.map(t => ({ ...t, execute: async (inp, cx) => { const r = await t.execute(inp, cx); render(); return r; } }));
+    try {
+      const { text, truncated } = await sample(turns, { cache: false, signal: ctl.signal, ...(wrapped ? { tools: wrapped } : {}), onText: ({ text }) => { out.innerHTML = md(text); $('msgs').scrollTop = $('msgs').scrollHeight; } });
+      out.innerHTML = md(text) + (truncated ? '<p class="muted">(Respuesta cortada: pregunta por partes.)</p>' : '');
+      hist.push({ role: 'assistant', content: text }); saveHist();
+    } catch (e) {
+      if (e?.text) { out.innerHTML = md(e.text); hist.push({ role: 'assistant', content: e.text }); saveHist(); } else out.remove();
+      if (e?.code !== 'cancelled') sys(ERR[e?.code] || 'Algo ha fallado al hablar con el asesor. Inténtalo de nuevo.', true);
+      if (e?.code === 'not_granted' || e?.code === 'sampling_disabled') { $('form').hidden = true; $('chips').hidden = true; }
+    } finally {
+      if (cambios.length) {
+        undoStack.push(antes); guardar(); render();
+        $('changed-txt').textContent = 'Cambios: ' + cambios.slice(0, 4).join(' · ') + (cambios.length > 4 ? ' …' : '');
+        $('changed').hidden = false;
+      }
+      busy = false; $('send').disabled = false; $('stop').hidden = true; ctl = null;
+    }
+  }
+  $('form').addEventListener('submit', e => { e.preventDefault(); enviar($('input').value); });
+  $('input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar($('input').value); } });
+  const autoGrow = () => { const t = $('input'); t.style.height = 'auto'; t.style.height = Math.min(120, t.scrollHeight) + 'px'; };
+  $('input').addEventListener('input', autoGrow);
+  $('stop').onclick = () => ctl?.abort();
+  $('chips').addEventListener('click', e => { const c = e.target.closest('.chip'); if (c) { $('input').value = c.textContent; $('input').focus(); autoGrow(); } });
+  $('clear-chat').onclick = () => { if (busy) return; hist = []; saveHist(); renderHist(); $('changed').hidden = true; };
+
+  // ── Arranque ──
+  // Versión descargada: sin Claude, usa el plan incluido en el archivo y guarda los cambios en este navegador.
+  function modoLocal(motivo) {
+    let guardado = null;
+    try { guardado = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch {}
+    const base = guardado || window.__PLAN_INICIAL__;
+    if (!base) { $('sub').textContent = motivo; return; }
+    st = JSON.parse(JSON.stringify(base));
+    render();
+    $('form').hidden = true; $('chips').hidden = true;
+    $('msgs').innerHTML = '';
+    sys('Estás usando la copia descargada. Los gráficos y el botón «Hecho» funcionan y se guardan en este navegador; el asesor con IA solo funciona abriendo la página en Claude.');
+  }
+  if (!window.claude?.use) { modoLocal('Abre esta página dentro de Claude para ver tus datos y hablar con el asesor.'); return; }
+  claude.use('sample').then(s => { sample = s; if (!s) { $('form').hidden = true; $('chips').hidden = true; sys('El asesor no está disponible en esta vista.'); } });
+  claude.use('db').then(db => {
+    if (!db) { modoLocal('No se pueden cargar tus datos en esta vista. Inicia sesión en Claude y vuelve a abrir la página.'); return; }
+    docRef = db.doc('plan/estado');
+    docRef.onSnapshot(snap => {
+      if (busy) return;
+      if (!snap.exists) { $('sub').textContent = 'Todavía no hay un plan guardado.'; return; }
+      st = JSON.parse(JSON.stringify(snap.data()));
+      render();
+    }, e => { $('sub').textContent = `No se pudieron leer tus datos (${e.code}).`; });
+  });
+})();
+</script>
+</body></html>

@@ -483,8 +483,9 @@ details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin
   const snapshot = () => JSON.parse(JSON.stringify(st));
   function pushUndo() { undoStack.push(snapshot()); if (undoStack.length > 20) undoStack.shift(); }
   let writing = Promise.resolve();
+  const LOCAL_KEY = 'plan-deudas-estado-v1';
   function guardar() {
-    if (!docRef) return;
+    if (!docRef) { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(st)); } catch {} return; }
     const body = snapshot();
     writing = writing.then(() => docRef.set(body)).catch(e => sys(`No se pudo guardar (${e?.code || 'error'}). Vuelve a intentarlo.`, true));
   }
@@ -675,13 +676,22 @@ DATOS ACTUALES:
   $('clear-chat').onclick = () => { if (busy) return; hist = []; saveHist(); renderHist(); $('changed').hidden = true; };
 
   // ── Arranque ──
-  if (!window.claude?.use) {
-    $('sub').textContent = 'Abre esta página dentro de Claude para ver tus datos y hablar con el asesor.';
-    return;
+  // Versión descargada: sin Claude, usa el plan incluido en el archivo y guarda los cambios en este navegador.
+  function modoLocal(motivo) {
+    let guardado = null;
+    try { guardado = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch {}
+    const base = guardado || window.__PLAN_INICIAL__;
+    if (!base) { $('sub').textContent = motivo; return; }
+    st = JSON.parse(JSON.stringify(base));
+    render();
+    $('form').hidden = true; $('chips').hidden = true;
+    $('msgs').innerHTML = '';
+    sys('Estás usando la copia descargada. Los gráficos y el botón «Hecho» funcionan y se guardan en este navegador; el asesor con IA solo funciona abriendo la página en Claude.');
   }
+  if (!window.claude?.use) { modoLocal('Abre esta página dentro de Claude para ver tus datos y hablar con el asesor.'); return; }
   claude.use('sample').then(s => { sample = s; if (!s) { $('form').hidden = true; $('chips').hidden = true; sys('El asesor no está disponible en esta vista.'); } });
   claude.use('db').then(db => {
-    if (!db) { $('sub').textContent = 'No se pueden cargar tus datos en esta vista. Inicia sesión en Claude y vuelve a abrir la página.'; return; }
+    if (!db) { modoLocal('No se pueden cargar tus datos en esta vista. Inicia sesión en Claude y vuelve a abrir la página.'); return; }
     docRef = db.doc('plan/estado');
     docRef.onSnapshot(snap => {
       if (busy) return;
